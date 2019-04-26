@@ -1009,3 +1009,12 @@ article .article-title,
 h2 {
   font-size: 2.5rem;
 }
+
+      .paper {
+        background: #dee2e6;
+      }
+    
+      .navbar {
+        background: #e9ecef;
+      }
+    
