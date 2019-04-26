@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>大数据的刷题必备 | 矩阵·空间</title>
+<meta name="description" content="juzhen.space">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="shortcut icon" href="https://juzhen.space/favicon.ico?v=1556304089200">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css" />
+<link rel="stylesheet" href="https://juzhen.space/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-139144367-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-139144367-1');
+</script>
+
+
+  </head>
+  <body>
+  
+    <nav class="navbar border fixed split-nav">
+  <div class="nav-brand">
+    <h3><a href="https://juzhen.space">矩阵·空间</a></h3>
+  </div>
+  <div class="collapsible">
+    <input id="collapsible1" type="checkbox" name="collapsible1">
+    <button>
+      <label for="collapsible1">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+      </label>
+    </button>
+    <div class="collapsible-body">
+      <ul class="inline">
+        
+          <li>
+            
+              <a href="/" class="menu">
+                首页
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/archives" class="menu">
+                归档
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/tags" class="menu">
+                标签
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/post/about" class="menu">
+                关于
+              </a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div id="top" class="row site">
+      <div class="sm-12 md-8 col">
+        <div class="paper">
+          <article class="article">
+            <h1>大数据的刷题必备</h1>
+            <p class="article-meta">
+              2018-04-15
+              
+                <a href="https://juzhen.space/tag/bigdata" class="badge ">
+                  bigdata
+                </a>
+              
+                <a href="https://juzhen.space/tag/刷题" class="badge warning">
+                  刷题
+                </a>
+              
+            </p>
+            
+            <div class="post-content">
+              <h3 id="介绍哈希函数">介绍哈希函数</h3>
+<blockquote>
+<p>哈希函数又叫散列函数，哈希函数的输入域可以是非常大的范围，但是输出域是固定范围，假设为s。</p>
+</blockquote>
+<p>哈希函数的性质：</p>
+<ol>
+<li>
+<p>典型的哈希函数都拥有无限的输入值域。</p>
+</li>
+<li>
+<p>输入值相同时，返回值一样。</p>
+</li>
+<li>
+<p>输入值不同是返回值可能一样可能不一样。</p>
+</li>
+<li>
+<p>不同的输入值得到的哈希值，整体均匀的分布在输出值域s上。（重要）</p>
+</li>
+</ol>
+<p><strong>1 ~ 3 点性质是哈希函数的基础，第4点是评价一个哈希函数优劣的关键。</strong></p>
+<p><img src="http://images.xtwroot.top/Interview-Notebook/%E5%A4%A7%E6%95%B0%E6%8D%AE-%E5%93%88%E5%B8%8C%E5%87%BD%E6%95%B0.jpg" alt="哈希函数"></p>
+<h3 id="介绍map-reduce">介绍Map-Reduce</h3>
+<ol>
+<li>
+<p>Map 阶段 --&gt; 把大任务分成子任务。</p>
+</li>
+<li>
+<p>Reduce 阶段 --&gt; 子任务并发处理，然后合并结果。</p>
+</li>
+</ol>
+<p><strong>难点：工程上的处理</strong></p>
+<p><strong>注意点：</strong></p>
+<ol>
+<li>备份的考虑，分布式存储的设计细节，以及容灾策略。</li>
+<li>任务分配策略与任务进度跟踪的细节设计，节点状态的呈现。</li>
+<li>多用户权限的控制。</li>
+</ol>
+<p>示例： 用 Map-Reduce 方法统计一篇文章中每个单词出现的个数</p>
+<p>1、 文章的预处理 - 将有效的单词全部抓取出来</p>
+<p><img src="https://blog-1252904076.cos.ap-guangzhou.myqcloud.com/Interview-Notebook/%E5%A4%A7%E6%95%B0%E6%8D%AE-%E9%A2%84%E5%A4%84%E7%90%86.jpg" alt="预处理"></p>
+<p>2、 map 阶段 - 划分子任务</p>
+<p><img src="https://blog-1252904076.cos.ap-guangzhou.myqcloud.com/Interview-Notebook/%E5%A4%A7%E6%95%B0%E6%8D%AE-map%E9%98%B6%E6%AE%B5.jpg" alt="map阶段"></p>
+<p>3、 reduce 阶段 - 子任务并行处理</p>
+<p><img src="https://blog-1252904076.cos.ap-guangzhou.myqcloud.com/Interview-Notebook/%E5%A4%A7%E6%95%B0%E6%8D%AE-reduce%E9%98%B6%E6%AE%B5.jpg" alt="reduce阶段"></p>
+<h3 id="常见海量数据题目解题关键">常见海量数据题目解题关键</h3>
+<p>1、 分而治之。通过哈希函数将大任务分流到机器，或分流成小文件。</p>
+<p>2、 常用到的数据结构有 hashMap 和 bitmap。</p>
+<p><strong>难点：通讯、时间和空间的估算。</strong></p>
+<h5 id="案例一-请对10亿个ipv4的ip地址进行排序每个ip只会出现一次">案例一、 请对10亿个IPV4的ip地址进行排序，每个ip只会出现一次。</h5>
+<h6 id="分析">分析：</h6>
+<p>先看一下普通的方法，既然要排序，先把10亿个ip地址都转换为整数，然后在排序。一个整数需要4个字节的内存，10亿个大约就要有4G的内存，虽然我们的电脑一般都有超过4G的内存，但是这种算法的性能还是太低了。</p>
+<p>仔细思考一下，IPV4的ip总数量大约是 42 亿个，我们要对10亿个ip进行排序，需要排序的个数和可能有的总数相差不大，而且每个ip只出现一次，所以可以考虑用bitmap。</p>
+<h6 id="算法">算法：</h6>
+<p>可以申请一个有42亿byte的bitmap，然后对10亿个ip地址进行遍历，如果出现则对应的字节值设为1，否则设为0。一次遍历之后就可以根据bitmap，遍历bitmap的每一个byte即可确定出ip的排序。</p>
+<p><img src="https://blog-1252904076.cos.ap-guangzhou.myqcloud.com/Interview-Notebook/%E5%A4%A7%E6%95%B0%E6%8D%AE-IPV4%E6%8E%92%E5%BA%8F.jpg" alt="IPV4排序"></p>
+<h6 id="代码">代码：</h6>
+<pre><code class="language-c++">#include&lt;iostream&gt;
+#include&lt;fstream&gt;
+
+using namespace std;
+
+typedef unsigned char byte;
+
+void sort_ip(char[] input_url,char[] output_url)
+{
+    byte bitmap[2 &lt;&lt; 32];
+    char buffer[256];
+    ifstream in(input_url);
+    if(!in.is_open())
+    {
+        cout &lt;&lt; &quot;Error opening input file.&quot;;exit(1);
+    }
+    while(!in.eof())
+    {
+        in.getline(buffer,100);
+        bitmap[ip2int(buffer)] = 1;
+    }
+    ofstream out(output_url);
+    if(out.is_open())
+    {
+        for(int i = 0; i &lt; 2 &lt;&lt; 32; ++i)
+        {
+            if(bitmap[i] == 1)
+            {
+                out &lt;&lt; int2ip(i);
+            }
+        }
+    }
+    else
+    {
+        cout &lt;&lt; &quot;Error opening output file.&quot;;exit(1);
+    }
+}
+
+int ip2int(char[] ip)
+{
+    // 将ip地址转换为整形
+}
+
+int int2ip(int ip)
+{
+    // 将整形转换为ip地址
+}
+</code></pre>
+<h5 id="案例二请对10亿人的年龄进行排序">案例二：请对10亿人的年龄进行排序。</h5>
+<h6 id="分析-2">分析：</h6>
+<p>年龄我们大概可以确定是在 1 ~ 200 这个范围内（据说彭祖活了800多岁，但是我们只算现代人）。而且这里只是说对年龄进行排序而不是说对个人信息按照年龄来排序，所以我们可以使用计数排序。</p>
+<h5 id="算法-2">算法：</h5>
+<p>申请一个长度为200的 int 数组（int取值为42亿左右），遍历每个年龄，记录下每个年龄出现的次数，即可实现排序。</p>
+<p><img src="https://blog-1252904076.cos.ap-guangzhou.myqcloud.com/Interview-Notebook/%E5%A4%A7%E6%95%B0%E6%8D%AE-10%E4%BA%BF%E5%B9%B4%E9%BE%84%E6%8E%92%E5%BA%8F.jpg" alt="image"></p>
+<h5 id="案例三-有一个包含20亿个全是32位整数的大文件在其中找到出现次数最多的数内存限制为2g">案例三： 有一个包含20亿个全是32位整数的大文件，在其中找到出现次数最多的数，内存限制为2G。</h5>
+<h6 id="分析-3">分析：</h6>
+<p>对于统计次数，首先想到的应该就是hashmap了，但是仔细分析一下，hashmap的一条记录要包含一个key和一个value，因为有20亿个数，所以为了保证不会溢出，key和value都至少是int32类型。如果这20亿个数都不同的话，就有20亿条记录，一条记录8字节大约需要16G的内存，会导致内存不足。所以我们需要先将大文件分流成小文件，然后再使用hashmap。根据上面分析，最少要分成8个文件。</p>
+<p><img src="https://blog-1252904076.cos.ap-guangzhou.myqcloud.com/Interview-Notebook/%E5%A4%A7%E6%95%B0%E6%8D%AE-%E6%8E%92%E5%BA%8F20%E4%BA%BF%E4%B8%AA%E6%95%B4%E6%95%B0%E7%9A%84%E5%A4%A7%E6%96%87%E4%BB%B61.jpg" alt="image"></p>
+<h6 id="算法-3">算法：</h6>
+<p>用哈希函数把大文件分流成16个小文件，因为哈希函数的输入值相同时返回值一样，所以相同的一个数不会被分到不同的文件中，又因为不同的输入值得到的哈希值，整体均匀的分布在输出值域上，所以每个文件上的整数数量不会相差太多，近似于平均分配，所以小文件上不会发生溢出。分成小文件后对小文件上的数进行统计，得出最大数量的数，然后再拿所以小文件得出的结果进行比较，得出结果。</p>
+<p><img src="https://blog-1252904076.cos.ap-guangzhou.myqcloud.com/Interview-Notebook/%E5%A4%A7%E6%95%B0%E6%8D%AE-%E6%8E%92%E5%BA%8F20%E4%BA%BF%E4%B8%AA%E6%95%B4%E6%95%B0%E7%9A%84%E5%A4%A7%E6%96%87%E4%BB%B62.jpg" alt="image"></p>
+<h5 id="题目四">题目四：</h5>
+<blockquote>
+<p>32位无符号整数的范围是 0 ~ 4294967295 。现在有一个正好包含40亿个无符号整数的文件，所以在整个范围中必然有没有出现的数。可以使用最多10M的内存，只用找到一个没有出现过的数即可，该如何找？</p>
+</blockquote>
+<h5 id="题目五">题目五：</h5>
+<blockquote>
+<p>某搜索公司一天的用户搜索词汇量是海量的，假设有百亿的数据量，请设计一种求出每天最热100词的可行方法。</p>
+</blockquote>
+<h5 id="题目六">题目六：</h5>
+<blockquote>
+<p>工程师常使用服务器集群来设计和实现数据缓存，以下是常见的策略。
+1、无论是添加、查询还是删除数据，都先将数据的id通过哈希函数转换成一个哈希值，记为key。
+2、如果目前机器有N台，则计算key%N的值，这个值就是该数据所属的机器编号，无论是添加、查询还是删除操作，都只在这台机器上进行。请分析这种缓存策略可能带来的问题，并提出改进的方案。</p>
+</blockquote>
+
+            </div>
+          </article>
+        </div>
+        <div class="paper" data-aos="fade-in">
+          
+            <div class="next-post">
+              <div class="next">
+                下一篇
+              </div>
+              <a href="https://juzhen.space/post/bo-li-xiao-guo-de-shader-xiao-guo">
+                <h3 class="post-title">
+                  玻璃效果的 Shader 效果
+                </h3>
+              </a>
+            </div>
+          
+        </div>
+        
+          
+            <div class="paper" data-aos="fade-in">
+              <div id="gitalk-container"></div>
+            </div>
+          
+
+          
+        
+      </div>
+
+      <div class="sm-12 md-4 col sidebar">
+  <div class="paper info-container">
+    <img src="https://juzhen.space/images/avatar.png?v=1556304089200" class="no-responsive avatar">
+    <div class="text-muted">juzhen.space</div>
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      最新文章
+    </div>
+    <div class="row">
+      <ul>
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/zuo-er-ting-feng-arts-ji-hua-di-yi-zhou">左耳听风ARTS计划 -- 第一周</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/htc-vive-wave-gai-lan">HTC VIVE Wave 概览</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/da-shu-ju-de-shua-ti-bi-bei">大数据的刷题必备</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/bo-li-xiao-guo-de-shader-xiao-guo">玻璃效果的 Shader 效果</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/bit-operation">位运算的刷题应用</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/laravel-huan-jing-da-jian-apache-he-nginx">Laravel 环境搭建 Apache 和 Nginx</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/git-webhooks-shi-xian-zi-dong-la-qu-dai-ma">git webhooks 实现自动拉取代码</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/jiang-obj-wen-jian-jie-xi-cheng-unity-mesh">将 obj 文件解析成 unity mesh</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/Unity application starts up automatically">unity应用开机自启</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/markdown-guide">Markdown指南</a>
+            </li>
+          
+        
+      </ul>
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      标签列表
+    </div>
+    <div class="row">
+      
+        <a href="https://juzhen.space/tag/左耳听风ARTS" class="badge secondary">
+          左耳听风ARTS
+        </a>
+      
+        <a href="https://juzhen.space/tag/bigdata" class="badge success">
+          bigdata
+        </a>
+      
+        <a href="https://juzhen.space/tag/刷题" class="badge secondary">
+          刷题
+        </a>
+      
+        <a href="https://juzhen.space/tag/bit operation" class="badge warning">
+          bit operation
+        </a>
+      
+    </div>
+  </div>
+  <div class="paper">
+    Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+</script>
+
+
+  
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '80729f653146f76d242b',
+        clientSecret: 'e6dc0eee88151d2707fe6b81c1d4f5d388c0670f',
+        repo: 'xitangking.github.io',
+        owner: 'xitangking',
+        admin: ['xitangking'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

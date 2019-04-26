@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>git webhooks 实现自动拉取代码 | 矩阵·空间</title>
+<meta name="description" content="juzhen.space">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="shortcut icon" href="https://juzhen.space/favicon.ico?v=1556304089200">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css" />
+<link rel="stylesheet" href="https://juzhen.space/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-139144367-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-139144367-1');
+</script>
+
+
+  </head>
+  <body>
+  
+    <nav class="navbar border fixed split-nav">
+  <div class="nav-brand">
+    <h3><a href="https://juzhen.space">矩阵·空间</a></h3>
+  </div>
+  <div class="collapsible">
+    <input id="collapsible1" type="checkbox" name="collapsible1">
+    <button>
+      <label for="collapsible1">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+      </label>
+    </button>
+    <div class="collapsible-body">
+      <ul class="inline">
+        
+          <li>
+            
+              <a href="/" class="menu">
+                首页
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/archives" class="menu">
+                归档
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/tags" class="menu">
+                标签
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/post/about" class="menu">
+                关于
+              </a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div id="top" class="row site">
+      <div class="sm-12 md-8 col">
+        <div class="paper">
+          <article class="article">
+            <h1>git webhooks 实现自动拉取代码</h1>
+            <p class="article-meta">
+              2017-12-29
+              
+            </p>
+            
+            <div class="post-content">
+              <p>当进行开发的环境在本地，而运行的环境要在服务端时，每一次提交代码都需要在服务端pull一次。而利用git的hooks功能，能够让我们省去这一步，下面我就以码云的webhooks为例，实现服务端的代码自动同步部署。</p>
+<!-- more -->
+<h3 id="了解-git-的-hooks">了解 git 的 hooks</h3>
+<h5 id="关于-git-钩子">关于 git 钩子</h5>
+<p>Git 能在特定的重要动作发生时触发自定义脚本。 有两组这样的钩子：客户端的和服务器端的。 客户端钩子由诸如提交和合并这样的操作所调用，而服务器端钩子作用于诸如接收被推送的提交这样的联网操作。 你可以随心所欲地运用这些钩子。</p>
+<h5 id="如何使用钩子">如何使用钩子</h5>
+<p>钩子都被存储在 Git 目录下的 ==hooks== 子目录中。 也即绝大部分项目中的 ==.git/hooks== 。 当你用 ==git init== 初始化一个新版本库时，Git 默认会在这个目录中放置一些示例脚本。这些脚本除了本身可以被调用外，它们还透露了被触发时所传入的参数。 所有的示例都是 shell 脚本，其中一些还混杂了 Perl 代码，不过，任何正确命名的可执行脚本都可以正常使用 —— 你可以用 Ruby 或 Python，或其它语言编写它们。 这些示例的名字都是以 ==.sample== 结尾，如果你想启用它们，得先移除这个后缀。</p>
+<p>把一个正确命名且可执行的文件放入 Git 目录下的 hooks 子目录中，即可激活该钩子脚本。 这样一来，它就能被 Git 调用。 接下来，我们会讲解常用的钩子脚本类型。</p>
+<p>具体使用可以参考官方文档：<a href="https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks">Git Hookes</a></p>
+<h3 id="了解-webhooks">了解 webhooks</h3>
+<p>钩子功能（callback），是帮助用户 push 了代码后，自动回调一个你设定的 http 地址。 这是一个通用的解决方案，用户可以自己根据不同的需求，来编写自己的脚本程序（比如发邮件，自动部署等）；目前，webhooks 支持多种触发方式，支持复选。</p>
+<p>webhooks 的请求方式为POST请求，有两种数据格式可以选择，JSON 和 web 的 form参数，可以自行选择是否使用密码来确定请求。（注意：该密码是明文)</p>
+<p>不同托管平台的POST数据格式都不太一样，不过也不会有太大影响，只是解析数据的时候注意就行了，下面是码云的 Push 操作回调的 json 数据：</p>
+<pre><code class="language-json">{
+    &quot;before&quot;: &quot;fb32ef5812dc132ece716a05c50c7531c6dc1b4d&quot;, 
+    &quot;after&quot;: &quot;ac63b9ba95191a1bf79d60bc262851a66c12cda1&quot;, 
+    &quot;ref&quot;: &quot;refs/heads/master&quot;, 
+    &quot;user_id&quot;: 13,
+    &quot;user_name&quot;: &quot;123&quot;, 
+    &quot;user&quot;: {
+      &quot;name&quot;: &quot;123&quot;,
+      &quot;username&quot;: &quot;test123&quot;,
+      &quot;url&quot;: &quot;https://gitee.com/oschina&quot;
+    }, 
+    &quot;repository&quot;: {
+        &quot;name&quot;: &quot;webhook&quot;, 
+        &quot;url&quot;: &quot;http://git.oschina.net/oschina/webhook&quot;, 
+        &quot;description&quot;: &quot;&quot;, 
+        &quot;homepage&quot;: &quot;https://gitee.com/oschina/webhook&quot;
+    }, 
+    &quot;commits&quot;: [
+        {
+            &quot;id&quot;: &quot;ac63b9ba95191a1bf79d60bc262851a66c12cda1&quot;, 
+            &quot;message&quot;: &quot;1234 bug fix&quot;, 
+            &quot;timestamp&quot;: &quot;2016-12-09T17:28:02 08:00&quot;, 
+            &quot;url&quot;: &quot;https://gitee.com/oschina/webhook/commit/ac63b9ba95191a1bf79d60bc262851a66c12cda1&quot;, 
+            &quot;author&quot;: {
+                &quot;name&quot;: &quot;123&quot;, 
+                &quot;email&quot;: &quot;123@123.com&quot;, 
+                &quot;time&quot;: &quot;2016-12-09T17:28:02 08:00&quot;
+            }
+        }
+    ], 
+    &quot;total_commits_count&quot;: 1, 
+    &quot;commits_more_than_ten&quot;: false, 
+    &quot;project&quot;: {
+        &quot;name&quot;: &quot;webhook&quot;, 
+        &quot;path&quot;: &quot;webhook&quot;, 
+        &quot;url&quot;: &quot;https://gitee.com/oschina/webhook&quot;, 
+        &quot;git_ssh_url&quot;: &quot;git@gitee.com:oschina/webhook.git&quot;, 
+        &quot;git_http_url&quot;: &quot;https://gitee.com/oschina/webhook.git&quot;, 
+        &quot;git_svn_url&quot;: &quot;svn://gitee.com/oschina/webhook&quot;, 
+        &quot;namespace&quot;: &quot;oschina&quot;, 
+        &quot;name_with_namespace&quot;: &quot;oschina/webhook&quot;, 
+        &quot;path_with_namespace&quot;: &quot;oschina/webhook&quot;, 
+        &quot;default_branch&quot;: &quot;master&quot;
+    }, 
+    &quot;hook_name&quot;: &quot;push_hooks&quot;, 
+    &quot;password&quot;: &quot;pwd&quot;
+}
+</code></pre>
+<p>其他的具体数据可以到各个官网查看：<a href="http://git.mydoc.io/?t=154711">码云</a>、<a href="https://open.coding.net/webhooks/">Coding</a>、<a href="https://developer.github.com/webhooks/">GitHub</a></p>
+<h3 id="在-ubuntu-apache-码云的尝试">在 Ubuntu + Apache + 码云的尝试</h3>
+<h4 id="准备工作">准备工作</h4>
+<p>1、首先你要搭建好LAMP的的开发环境 可以看<a href="https://cloud.tencent.com/developer/labs/lab/10026">腾讯开发者实验室的课程</a></p>
+<p>2、当然要有git的环境了</p>
+<p>3、要将代码方在一个提供webhooks支持的代码托管平台上，如果自己搭建 git 服务器则要自己实现 webhooks 回调</p>
+<h4 id="开始干活">开始干活</h4>
+<ol>
+<li>创建web服务器用户目录，这里以apache用户为例，不同的环境请根据自己环境自行修改：</li>
+</ol>
+<pre><code class="language-bash">sudo mkdir /var/www/.ssh
+sudo chown -R apacheuser /var/www/.ssh/  // 这里的用户要是 Apache 的运行用户,下同
+</code></pre>
+<ol start="2">
+<li>
+<p>生成公钥</p>
+<p>公钥有两个：1. git用户公钥，2. 部署公钥：</p>
+</li>
+</ol>
+<ul>
+<li>用户公钥（用于git clone时认证权限）</li>
+</ul>
+<pre><code class="language-bash">ssh-keygen -t rsa -C &quot;sample@gmail.com&quot; # 填自己的邮箱
+ # 然后一直回车就行
+ # 生成的文件通常是 /root/.ssh/id_rsa，如果非root用户请查看提示上的路径
+</code></pre>
+<ul>
+<li>部署公钥</li>
+</ul>
+<pre><code class="language-bash"> sudo -Hu apacheuser ssh-keygen -t rsa  # 请选择 &quot;no passphrase&quot;，一直回车下去
+</code></pre>
+<ol start="3">
+<li>配置公钥</li>
+</ol>
+<ul>
+<li>用户公钥</li>
+</ul>
+<pre><code class="language-bash">sudo cat /root/.ssh/id_rsa.pub # 查看生成的密钥内容，复制全部
+</code></pre>
+<p>将公钥的内容粘贴到用户-&gt;设置 中的SSH公钥中</p>
+<p><img src="http://image.xtwroot.top/blog/juzhen.space/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20171229110847.png" alt="image"></p>
+<ul>
+<li>部署公钥</li>
+</ul>
+<pre><code class="language-bash">sudo cat /var/www/.ssh/id_rsa.pub # 查看生成的密钥内容，复制全部
+</code></pre>
+<p>将公钥内容添加到具体项目 -&gt; 管理 中的部署公钥</p>
+<p><img src="http://image.xtwroot.top/blog/juzhen.space/%E9%83%A8%E7%BD%B2%E5%85%AC%E9%92%A5.png" alt="image"></p>
+<ul>
+<li>git 的全局配置</li>
+</ul>
+<pre><code class="language-bash">sudo -Hu apacheuser git config --global credential.helper store # 永久保存
+sudo -Hu apacheuser git config --global user.name &quot;name&quot; 
+sudo -Hu apacheuser git config --global user.email &quot;shample@gmail.com&quot; # 邮箱请与码云上一致
+</code></pre>
+<p><strong>配置完成之后可以 clone 或 pull 项目来验证是否配置成功（注意：要切换成Apache运行用户来进行操作），若多次操作只需输入一次用户名、密码，即配置成功，若每一次操作都有输入用户名密码，则配置不成功，需要重新检查配置。</strong></p>
+<ol start="4">
+<li>准备钩子文件</li>
+</ol>
+<p>在你的www目录建立一个目录hook, 里面放上一个php文件index.php，内容如下：</p>
+<pre><code class="language-php">&lt;?php
+// 这里只是最简单的拉取代码，如果要做更加多的操作，如验证、日志，请自己解析push内容并操作
+
+// 获取push数据内容的方法
+$requestBody = file_get_contents(&quot;php://input&quot;);
+
+// 只需这一行代码便可拉取
+shell_exec(&quot;cd /var/www/Project &amp;&amp; git pull&quot;); // 目录换成项目的目录
+
+?&gt;
+</code></pre>
+<p>修改目录权限：</p>
+<pre><code class="language-bash">chown -R apacheuser /var/www/hook # 这里请改成你创建的hook目录
+chown -R apacheuser /var/www/Project # 这里请改成你的项目目录
+</code></pre>
+<p>确保你的hook文件可以访问：http://example.com/hook/index.php ，钩子准备完成。</p>
+<ol start="5">
+<li>配置webhooks</li>
+</ol>
+<p><img src="http://image.xtwroot.top/blog/juzhen.space/%E9%85%8D%E7%BD%AEwebhooks.png" alt="image"></p>
+<p><strong>如果链接可用，则大功告成，只需把仓库 clone 之后，再向码云提交，变回自动被 服务器 pull</strong></p>
+<h4 id="注意事项">注意事项</h4>
+<p>如果配置都没有问题，但是就是不会自动拉取，那应该是用户的权限配置问题，可以先查看运行php代码的具体用户是什么，然后为该用户开启权限。</p>
+<pre><code class="language-php">system(&quot;whoami&quot;); // 查看是哪个用户执行该命令
+</code></pre>
+<h3 id="参考文章">参考文章</h3>
+<ul>
+<li><a href="http://overtrue.me/articles/2015/01/how-to-deploy-project-with-git-hook.html">使用PHP脚本远程部署git项目</a></li>
+<li><a href="http://blog.csdn.net/liu510817387/article/details/51594699">利用WebHook实现PHP自动部署Git代码</a></li>
+<li><a href="http://blog.csdn.net/LMH820822/article/details/78356399?locationNum=10&amp;fps=1">Gitee码云通过WebHooks实现自动同步代码部署</a></li>
+<li><a href="https://www.cnblogs.com/gaohj/p/3267692.html">PHP执行系统外部命令函数:exec()、passthru()、system()、shell_exec()</a></li>
+</ul>
+
+            </div>
+          </article>
+        </div>
+        <div class="paper" data-aos="fade-in">
+          
+            <div class="next-post">
+              <div class="next">
+                下一篇
+              </div>
+              <a href="https://juzhen.space/post/jiang-obj-wen-jian-jie-xi-cheng-unity-mesh">
+                <h3 class="post-title">
+                  将 obj 文件解析成 unity mesh
+                </h3>
+              </a>
+            </div>
+          
+        </div>
+        
+          
+            <div class="paper" data-aos="fade-in">
+              <div id="gitalk-container"></div>
+            </div>
+          
+
+          
+        
+      </div>
+
+      <div class="sm-12 md-4 col sidebar">
+  <div class="paper info-container">
+    <img src="https://juzhen.space/images/avatar.png?v=1556304089200" class="no-responsive avatar">
+    <div class="text-muted">juzhen.space</div>
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      最新文章
+    </div>
+    <div class="row">
+      <ul>
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/zuo-er-ting-feng-arts-ji-hua-di-yi-zhou">左耳听风ARTS计划 -- 第一周</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/htc-vive-wave-gai-lan">HTC VIVE Wave 概览</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/da-shu-ju-de-shua-ti-bi-bei">大数据的刷题必备</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/bo-li-xiao-guo-de-shader-xiao-guo">玻璃效果的 Shader 效果</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/bit-operation">位运算的刷题应用</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/laravel-huan-jing-da-jian-apache-he-nginx">Laravel 环境搭建 Apache 和 Nginx</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/git-webhooks-shi-xian-zi-dong-la-qu-dai-ma">git webhooks 实现自动拉取代码</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/jiang-obj-wen-jian-jie-xi-cheng-unity-mesh">将 obj 文件解析成 unity mesh</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/Unity application starts up automatically">unity应用开机自启</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/markdown-guide">Markdown指南</a>
+            </li>
+          
+        
+      </ul>
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      标签列表
+    </div>
+    <div class="row">
+      
+        <a href="https://juzhen.space/tag/左耳听风ARTS" class="badge success">
+          左耳听风ARTS
+        </a>
+      
+        <a href="https://juzhen.space/tag/bigdata" class="badge success">
+          bigdata
+        </a>
+      
+        <a href="https://juzhen.space/tag/刷题" class="badge success">
+          刷题
+        </a>
+      
+        <a href="https://juzhen.space/tag/bit operation" class="badge success">
+          bit operation
+        </a>
+      
+    </div>
+  </div>
+  <div class="paper">
+    Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+</script>
+
+
+  
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '80729f653146f76d242b',
+        clientSecret: 'e6dc0eee88151d2707fe6b81c1d4f5d388c0670f',
+        repo: 'xitangking.github.io',
+        owner: 'xitangking',
+        admin: ['xitangking'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

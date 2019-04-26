@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>左耳听风ARTS计划 -- 第一周 | 矩阵·空间</title>
+<title>将 obj 文件解析成 unity mesh | 矩阵·空间</title>
 <meta name="description" content="juzhen.space">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -95,152 +95,197 @@
       <div class="sm-12 md-8 col">
         <div class="paper">
           <article class="article">
-            <h1>左耳听风ARTS计划 -- 第一周</h1>
+            <h1>将 obj 文件解析成 unity mesh</h1>
             <p class="article-meta">
-              2019-03-24
-              
-                <a href="https://juzhen.space/tag/左耳听风ARTS" class="badge success">
-                  左耳听风ARTS
-                </a>
+              2017-12-07
               
             </p>
             
-              <img src="https://juzhen.space/post-images/zuo-er-ting-feng-arts-ji-hua-di-yi-zhou.jpg" alt="左耳听风ARTS计划 -- 第一周">
-            
             <div class="post-content">
-              <p>ARTS打卡：Algorithm、Review、Tip、Share</p>
- <!-- more -->
-<p>更新历史</p>
-<ul>
-<li>2019.03.24:完成初稿</li>
-</ul>
-<h3 id="一-algorithm">一、Algorithm</h3>
-<p><strong>Leetcode 149. Max Points on a Line</strong></p>
-<p><code>Given n points on a 2D plane, find the maximum number of points that lie on the same straight line.</code></p>
-<blockquote>
-<p>Example 1:</p>
-<p>Input: [[1,1],[2,2],[3,3]]
-Output: 3
-Explanation:
-^
-|
-|        o
-|     o
-|  o<br>
-+-------------&gt;
-0  1  2  3  4
-Example 2:</p>
-</blockquote>
-<blockquote>
-<p>Input: [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]
-Output: 4
-Explanation:
-^
-|
-|  o
-|     o        o
-|        o
-|  o        o
-+-------------------&gt;
-0  1  2  3  4  5  6</p>
-</blockquote>
-<p><strong>Solution</strong></p>
-<pre><code class="language-java">/**
- * Definition for a point.
- * class Point {  
- *     int x;
- *     int y;
- *     Point() { x = 0; y = 0; }
- *     Point(int a, int b) { x = a; y = b; }
- * }
- */
- 
- /*
-     *  A line is determined by two factors,say y=ax+b
-     *  
-     *  If two points(x1,y1) (x2,y2) are on the same line(Of course). 
+              <p>obj 文件是三维模型中一种经典的通用的文件格式，他记录下了三维模型中的大部分必要信息，下面将尝试在 unity 中将 obj 解析成 unity 的 mesh 网格。</p>
+<!-- more -->
+<h4 id="了解obj文件结构">了解obj文件结构</h4>
+<p>既然要解析obj文件，那么在这之前我们当然要对obj文件的结构有所了解，下面我们就了解一下一个 unity 中经典的 cube 的 obj 格式会是怎样。</p>
+<pre><code>o Cube // 网格名称
+v 0.500000 -0.500000 0.500000  // 顶点数据 ： v 字后面跟的就是顶点的局部坐标 x,y,z 的值
+v -0.500000 -0.500000 0.500000
+v 0.500000 0.500000 0.500000
+v -0.500000 0.500000 0.500000
+v 0.500000 0.500000 -0.500000
+v -0.500000 0.500000 -0.500000
+v 0.500000 -0.500000 -0.500000
+v -0.500000 -0.500000 -0.500000
+v 0.500000 0.500000 0.500000
+v -0.500000 0.500000 0.500000
+v 0.500000 0.500000 -0.500000
+v -0.500000 0.500000 -0.500000
+v 0.500000 -0.500000 -0.500000
+v 0.500000 -0.500000 0.500000
+v -0.500000 -0.500000 0.500000
+v -0.500000 -0.500000 -0.500000
+v -0.500000 -0.500000 0.500000
+v -0.500000 0.500000 0.500000
+v -0.500000 0.500000 -0.500000
+v -0.500000 -0.500000 -0.500000
+v 0.500000 -0.500000 -0.500000
+v 0.500000 0.500000 -0.500000
+v 0.500000 0.500000 0.500000
+v 0.500000 -0.500000 0.500000
 
-     *  Consider the gap between two points.
+vn 0.000000 0.000000 1.000000  // 法线数据
+vn 0.000000 0.000000 1.000000
+vn 0.000000 0.000000 1.000000
+vn 0.000000 0.000000 1.000000
+vn 0.000000 1.000000 0.000000
+vn 0.000000 1.000000 0.000000
+vn 0.000000 0.000000 -1.000000
+vn 0.000000 0.000000 -1.000000
+vn 0.000000 1.000000 0.000000
+vn 0.000000 1.000000 0.000000
+vn 0.000000 0.000000 -1.000000
+vn 0.000000 0.000000 -1.000000
+vn 0.000000 -1.000000 0.000000
+vn 0.000000 -1.000000 0.000000
+vn 0.000000 -1.000000 0.000000
+vn 0.000000 -1.000000 0.000000
+vn -1.000000 0.000000 0.000000
+vn -1.000000 0.000000 0.000000
+vn -1.000000 0.000000 0.000000
+vn -1.000000 0.000000 0.000000
+vn 1.000000 0.000000 0.000000
+vn 1.000000 0.000000 0.000000
+vn 1.000000 0.000000 0.000000
+vn 1.000000 0.000000 0.000000
 
-     *  We have (y2-y1)=a(x2-x1),a=(y2-y1)/(x2-x1) a is a rational, b is canceled since b is a constant
+vt 0.000000 0.000000  // UV数据
+vt 1.000000 0.000000
+vt 0.000000 1.000000
+vt 1.000000 1.000000
+vt 0.000000 1.000000
+vt 1.000000 1.000000
+vt 0.000000 1.000000
+vt 1.000000 1.000000
+vt 0.000000 0.000000
+vt 1.000000 0.000000
+vt 0.000000 0.000000
+vt 1.000000 0.000000
+vt 0.000000 0.000000
+vt 0.000000 1.000000
+vt 1.000000 1.000000
+vt 1.000000 0.000000
+vt 0.000000 0.000000
+vt 0.000000 1.000000
+vt 1.000000 1.000000
+vt 1.000000 0.000000
+vt 0.000000 0.000000
+vt 0.000000 1.000000
+vt 1.000000 1.000000
+vt 1.000000 0.000000
 
-     *  If a third point (x3,y3) are on the same line. So we must have y3=ax3+b
+g Default-Material  // 材质名称
+usemtl Default-Material  // 使用的材质
+usemap Default-Material  // 使用的贴图
 
-     *  Thus,(y3-y1)/(x3-x1)=(y2-y1)/(x2-x1)=a
+f 1/1/1 3/3/3 4/4/4  // 三角形数据 - 顶点索引/UV索引/法线索引
+f 1/1/1 4/4/4 2/2/2
+f 9/9/9 5/5/5 6/6/6
+f 9/9/9 6/6/6 10/10/10
+f 11/11/11 7/7/7 8/8/8
+f 11/11/11 8/8/8 12/12/12
+f 13/13/13 14/14/14 15/15/15
+f 13/13/13 15/15/15 16/16/16
+f 17/17/17 18/18/18 19/19/19
+f 17/17/17 19/19/19 20/20/20
+f 21/21/21 22/22/22 23/23/23
+f 21/21/21 23/23/23 24/24/24
 
-     *  Since a is a rational, there exists y0 and x0, y0/x0=(y3-y1)/(x3-x1)=(y2-y1)/(x2-x1)=a
-
-     *  So we can use y0&amp;x0 to track a line;
-     */
-    
-    public class Solution{
-        public int maxPoints(Point[] points) {
-        	if (points==null) return 0;
-        	if (points.length&lt;=2) return points.length;
-        	
-        	Map&lt;Integer,Map&lt;Integer,Integer&gt;&gt; map = new HashMap&lt;Integer,Map&lt;Integer,Integer&gt;&gt;();
-        	int result=0;
-        	for (int i=0;i&lt;points.length;i++){ 
-        		map.clear();
-        		int overlap=0,max=0;
-        		for (int j=i+1;j&lt;points.length;j++){
-        			int x=points[j].x-points[i].x;
-        			int y=points[j].y-points[i].y;
-        			if (x==0&amp;&amp;y==0){
-        				overlap++;
-        				continue;
-        			}
-        			int gcd=generateGCD(x,y);
-        			if (gcd!=0){
-        				x/=gcd;
-        				y/=gcd;
-        			}
-        			
-        			if (map.containsKey(x)){
-        				if (map.get(x).containsKey(y)){
-        					map.get(x).put(y, map.get(x).get(y)+1);
-        				}else{
-        					map.get(x).put(y, 1);
-        				}   					
-        			}else{
-        				Map&lt;Integer,Integer&gt; m = new HashMap&lt;Integer,Integer&gt;();
-        				m.put(y, 1);
-        				map.put(x, m);
-        			}
-        			max=Math.max(max, map.get(x).get(y));
-        		}
-        		result=Math.max(result, max+overlap+1);
-        	}
-        	return result;
-        	
-        	
-        }
-        private int generateGCD(int a,int b){
-    
-        	if (b==0) return a;
-        	else return generateGCD(b,a%b);
-        	
-        }
-    }
 </code></pre>
-<p><img src="http://images.xtwroot.top/20190324220229.png" alt=""></p>
-<h3 id="二-review">二、Review</h3>
-<p><strong>推荐本周看的英文文章：</strong></p>
-<p><a href="https://whydoesaptnotusehttps.com/">为什么apt没用HTTPS？</a></p>
-<p>最近Debian的包管理apt被人发现了漏洞，可以通过代理注入程序。看起来这是一个很容易避免的漏洞：只要用HTTPS就可以了。不过apt为啥没用HTTPS呢？这里有个网站专门解释了原因。</p>
-<h3 id="三-tip">三、Tip</h3>
-<p>这周先分享一篇自己以前总结的文章，总结了对位运算运用的一些小技巧</p>
-<p><a href="http://juzhen.space/2018/03/15/%E5%88%B7%E9%A2%98/%E4%BD%8D%E8%BF%90%E7%AE%97%E7%9A%84%E5%88%B7%E9%A2%98%E5%BA%94%E7%94%A8/">位运算的刷题应用</a>：http://juzhen.space/2018/03/15/%E5%88%B7%E9%A2%98/%E4%BD%8D%E8%BF%90%E7%AE%97%E7%9A%84%E5%88%B7%E9%A2%98%E5%BA%94%E7%94%A8/</p>
-<h3 id="四-share">四、Share</h3>
-<p>本周分享一个我新发现的微信个人接口的python库itchat，利用他可以对自己的微信进行一系列有趣的改造，以下是他的简介：</p>
-<blockquote>
-<p>itchat是一个开源的微信个人号接口，使用python调用微信从未如此简单。</p>
-<p>使用不到三十行的代码，你就可以完成一个能够处理所有信息的微信机器人。</p>
-<p>当然，该api的使用远不止一个机器人，更多的功能等着你来发现，比如<a href="http://python.jobbole.com/86532/">这些</a>。</p>
-<p>该接口与公众号接口<a href="https://github.com/littlecodersh/itchatmp">itchatmp</a>共享类似的操作方式，学习一次掌握两个工具。</p>
-<p>如今微信已经成为了个人社交的很大一部分，希望这个项目能够帮助你扩展你的个人的微信号、方便自己的生活。</p>
-</blockquote>
-<p><a href="https://itchat.readthedocs.io/zh/latest/">中文文档</a>：https://itchat.readthedocs.io/zh/latest/</p>
+<h4 id="解析成mesh">解析成mesh</h4>
+<p>了解了obj文件的结构就会发现，解析它其实挺简单的，只需要根据每一行的前缀确定后面的数据到底属于哪一种类型，然后将它分割保存起来，最后赋值给mesh中的对应属性即可。</p>
+<pre><code class="language-csharp">using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System.IO;
+
+public class ObjParser{
+
+    public static Mesh Parse(string url)
+    {
+        Mesh mesh = new Mesh();
+
+        List&lt;Vector3&gt; vts = new List&lt;Vector3&gt;();
+        List&lt;Vector2&gt; uvs = new List&lt;Vector2&gt;();
+        List&lt;Vector3&gt; normals = new List&lt;Vector3&gt;();
+        List&lt;int&gt; tris = new List&lt;int&gt;();
+
+
+        StreamReader sr = new StreamReader(url);
+
+        while(!sr.EndOfStream)
+        {
+            string line = sr.ReadLine();
+            string[] split = line.Split(' ');
+
+            switch(split[0])
+            {
+                case &quot;o&quot;:
+                    mesh.name = split[1];
+                    break;
+
+                case &quot;v&quot;:
+                    {
+                        float x = float.Parse(split[1]);
+                        float y = float.Parse(split[2]);
+                        float z = float.Parse(split[3]);
+
+                        vts.Add(new Vector3(x, y, z));
+                    }
+                    break;
+                case &quot;vn&quot;:
+                    {
+                        float x = float.Parse(split[1]);
+                        float y = float.Parse(split[2]);
+                        float z = float.Parse(split[3]);
+
+                        normals.Add(new Vector3(x, y, z));
+                    }
+                    break;
+
+                case &quot;vt&quot;:
+                    {
+                        float x = float.Parse(split[1]);
+                        float y = float.Parse(split[2]);
+
+                        uvs.Add(new Vector2(x, y));
+                    }
+                    break;
+
+                case &quot;f&quot;:
+                    {
+                        for (int i = 1; i &lt; split.Length; ++i)
+                        {
+                            string[] sp = split[i].Split('/');
+                            tris.Add(int.Parse(sp[0]) - 1);
+                        }
+                    }
+                    break;
+
+                default:
+
+                    break;
+            }
+        }
+
+        mesh.vertices = vts.ToArray();
+        mesh.uv = uvs.ToArray();
+        mesh.normals = normals.ToArray();
+        mesh.triangles = tris.ToArray();
+
+        return mesh;
+    }
+
+}
+</code></pre>
 
             </div>
           </article>
@@ -251,9 +296,9 @@ Explanation:
               <div class="next">
                 下一篇
               </div>
-              <a href="https://juzhen.space/post/htc-vive-wave-gai-lan">
+              <a href="https://juzhen.space/post/Unity application starts up automatically">
                 <h3 class="post-title">
-                  HTC VIVE Wave 概览
+                  unity应用开机自启
                 </h3>
               </a>
             </div>
@@ -368,15 +413,15 @@ Explanation:
           左耳听风ARTS
         </a>
       
-        <a href="https://juzhen.space/tag/bigdata" class="badge ">
+        <a href="https://juzhen.space/tag/bigdata" class="badge secondary">
           bigdata
         </a>
       
-        <a href="https://juzhen.space/tag/刷题" class="badge success">
+        <a href="https://juzhen.space/tag/刷题" class="badge secondary">
           刷题
         </a>
       
-        <a href="https://juzhen.space/tag/bit operation" class="badge secondary">
+        <a href="https://juzhen.space/tag/bit operation" class="badge ">
           bit operation
         </a>
       

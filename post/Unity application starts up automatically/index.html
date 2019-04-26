@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>unity应用开机自启 | 矩阵·空间</title>
+<meta name="description" content="juzhen.space">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="shortcut icon" href="https://juzhen.space/favicon.ico?v=1556304089200">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css" />
+<link rel="stylesheet" href="https://juzhen.space/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-139144367-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-139144367-1');
+</script>
+
+
+  </head>
+  <body>
+  
+    <nav class="navbar border fixed split-nav">
+  <div class="nav-brand">
+    <h3><a href="https://juzhen.space">矩阵·空间</a></h3>
+  </div>
+  <div class="collapsible">
+    <input id="collapsible1" type="checkbox" name="collapsible1">
+    <button>
+      <label for="collapsible1">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+      </label>
+    </button>
+    <div class="collapsible-body">
+      <ul class="inline">
+        
+          <li>
+            
+              <a href="/" class="menu">
+                首页
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/archives" class="menu">
+                归档
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/tags" class="menu">
+                标签
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/post/about" class="menu">
+                关于
+              </a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div id="top" class="row site">
+      <div class="sm-12 md-8 col">
+        <div class="paper">
+          <article class="article">
+            <h1>unity应用开机自启</h1>
+            <p class="article-meta">
+              2017-10-15
+              
+            </p>
+            
+            <div class="post-content">
+              <p>最近有一个项目需要设置开机自启动，没有预先为程序设定这个功能，所以部署的时候每次都要生成快捷方式，然后找自启动文件夹，搞得非常崩溃。所以决定填上这个坑，写了一段unity应用通用的开启和关闭开机自启的代码。</p>
+ <!-- more -->
+<h3 id="写在前面">写在前面</h3>
+<p>经过一晚上的研究和分析，发现设置开机自启动主要有两种主流方式和一种非主流方式，这几个方式基本能满足需求，分别是：</p>
+<ol>
+<li>开始菜单启动（最常用，不需要管理员权限）</li>
+<li>注册表启动项（需要管理员权限）</li>
+<li>Windows计划任务（需要管理员权限，unity中使用有异常）</li>
+</ol>
+<p>以下代码都是即拿即用，只需绑定Button和Text即可。</p>
+<h3 id="开始菜单启动">开始菜单启动</h3>
+<p>开始菜单启动大概是我们最常用的一种设置开机自启的方法，具体用程序来实现也是很简单的，主要有两步：</p>
+<ol>
+<li>创建快捷方式并关联程序</li>
+<li>将快捷方式存到“开始”菜单的“启动”目录</li>
+</ol>
+<p>代码如下：</p>
+<pre><code class="language-csharp">
+using System;
+using System.IO;
+using UnityEngine;
+using UnityEngine.UI;
+using IWshRuntimeLibrary;
+
+public class StartMenu : MonoBehaviour {
+
+    public Button setupStartupButton;
+    public Button cancelStartupButton;
+    public Text hintText;
+    private static string ShortcutName = &quot;test.lnk&quot;;
+
+    private void OnEnable()
+    {
+        isStartup();
+        setupStartupButton.onClick.AddListener(OnSetupStartupButtonClick);
+        cancelStartupButton.onClick.AddListener(OnCancelStartupButtonClick);
+    }
+
+    private void OnDisable()
+    {
+        setupStartupButton.onClick.RemoveListener(OnSetupStartupButtonClick);
+        cancelStartupButton.onClick.RemoveListener(OnCancelStartupButtonClick);
+    }
+
+    private void OnSetupStartupButtonClick()
+    {
+        CreateShortcut(Environment.GetFolderPath(Environment.SpecialFolder.Startup), ShortcutName, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
+        isStartup();
+    }
+
+    private void OnCancelStartupButtonClick()
+    {
+        if (System.IO.File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.Startup) + &quot;\\&quot; + ShortcutName))
+            System.IO.File.Delete(Environment.GetFolderPath(Environment.SpecialFolder.Startup) + &quot;\\&quot; + ShortcutName);
+        isStartup();
+    }
+
+    private void isStartup()
+    {
+        if (System.IO.File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.Startup) + &quot;\\&quot; + ShortcutName))
+            hintText.text = &quot;应用已开机自启&quot;;
+        else
+            hintText.text = &quot;应用非开机自启&quot;;
+    }
+
+    public static bool CreateShortcut(string direstory,string shortcurName,string targetPath,string description = null,string iconLocation = null)
+    {
+
+        try
+        {
+            if(!Directory.Exists(direstory))
+            {
+                Directory.CreateDirectory(direstory);
+            }
+
+            // 添加引用com中搜索Windows Script Host Object Model, 如果在unity中使用则需下载 Interop.IWshRuntimeLibrary.dll 并放到代码同一文件夹
+            string shortscurPath = Path.Combine(direstory, string.Format(&quot;{0}&quot;, shortcurName));
+            IWshRuntimeLibrary.WshShell shell = new IWshRuntimeLibrary.WshShell();
+            IWshRuntimeLibrary.IWshShortcut shortcut = (IWshRuntimeLibrary.IWshShortcut)shell.CreateShortcut(shortscurPath); // 创建快捷方式对象
+            shortcut.TargetPath = targetPath; // 指定目标路径
+            shortcut.WorkingDirectory = Path.GetDirectoryName(targetPath); //设置起始位置
+            shortcut.WindowStyle = 1; // 设置运行方式，默认为常规窗口
+            shortcut.Description = description; // 设置备注
+            shortcut.IconLocation = string.IsNullOrEmpty(iconLocation) ? targetPath : iconLocation; //设置图标路径
+            shortcut.Save(); // 保存快捷方式
+            return true;
+        }
+        catch
+        {
+
+        }
+
+        return false;
+    }
+}
+
+</code></pre>
+<p>使用开始菜单自启是非常稳的一种方法，不需要有管理员权限，但是unity中使用需要添加引用，并下载 <a href="https://www.dllme.com/dll/files/interop_iwshruntimelibrary_dll.html">Interop.IWshRuntimeLibrary.dll</a> 程序集放到与本代码同一文件夹。</p>
+<h3 id="注册表开机启动项">注册表开机启动项</h3>
+<p>这个相信是大部分同学使用的情况，简单易懂隐蔽（只是感觉很隐蔽，但是 msconfig 立马暴露），代码很简单，将启动的项目名称、文件位置添加到启动项即可。</p>
+<pre><code class="language-csharp">using Microsoft.Win32;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using System;
+
+public class Regeditkey : MonoBehaviour {
+
+    public Button setupStartupButton;
+    public Button cancelStartupButton;
+    public Text hintText;
+
+    private void OnEnable()
+    {
+        string path = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+        //regeditkey();
+        setupStartupButton.onClick.AddListener(OnSetupStartupButtonClick);
+        cancelStartupButton.onClick.AddListener(OnCancelStartupButtonClick);
+    }
+
+    private void OnDisable()
+    {
+        setupStartupButton.onClick.RemoveListener(OnSetupStartupButtonClick);
+        cancelStartupButton.onClick.RemoveListener(OnCancelStartupButtonClick);
+    }
+
+    private void OnSetupStartupButtonClick()
+    {
+        // 提示，需要更改注册表
+        try
+        {
+            string path = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+            RegistryKey rgkRun = Registry.LocalMachine.OpenSubKey(&quot;SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run&quot;, true);
+            if(rgkRun == null)
+            {
+                rgkRun = Registry.LocalMachine.CreateSubKey(&quot;SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run&quot;);
+            }
+            rgkRun.SetValue(&quot;dhstest&quot;, path); // 名字请自行设置
+        }
+        catch
+        {
+            Debug.Log(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
+        }
+        finally
+        {
+            regeditkey();
+        }
+    }
+
+    private void OnCancelStartupButtonClick()
+    {
+        // 提示，需要更改注册表
+        try
+        {
+            string path = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+            RegistryKey rgkRun = Registry.LocalMachine.OpenSubKey(&quot;SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run&quot;, true);
+            if (rgkRun == null)
+            {
+                rgkRun = Registry.LocalMachine.CreateSubKey(&quot;SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run&quot;);
+            }
+            rgkRun.DeleteValue(&quot;dhstest&quot;, false);
+        }
+        catch
+        {
+            Debug.Log(&quot;error&quot;);
+        }
+        finally
+        {
+            regeditkey();
+        }
+    }
+
+
+    private void regeditkey()
+    {
+        RegistryKey rgkRun = Registry.LocalMachine.OpenSubKey(&quot;SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run&quot;,true);
+        if(rgkRun.GetValue(&quot;dhstest&quot;) == null)
+        {
+            hintText.text = &quot;自启动为关闭&quot;;
+        }
+        else
+        {
+            hintText.text = &quot;自启动为打开&quot;;
+        }
+    }
+}
+</code></pre>
+<p>此方法在unity中使用也稳定有效，不需要下载程序集，但是需要以管理员权限运行程序才能修改注册表。</p>
+<h3 id="windows-计划任务方式启动">Windows 计划任务方式启动</h3>
+<p>计划任务表有很多人都不熟悉，但是它确实有很多妙用。但是在把代码转成unity应用后发现unity开发的应用中无法使用，初步认定的原因是，Interop.TaskScheduler.dll 程序集需要设置嵌入互操作类型为 false 但是unity 开发的应用中应用的程序集并没有这个选项，所以用 unity 大概不能使用Windows计划任务管理器。</p>
+<p>为了验证计划任务管理器是否有效，我在wpf应用上测试了一下，wpf的引用是有设置嵌入互操作类型选项的，将其改为false即可正常引用 Interop.TaskScheduler 程序集。</p>
+<p><img src="http://note.youdao.com/noteshare?id=ae4ea7547db9ac0dd04d0f1cb06c91e0&amp;sub=120066C41880402C9C7C9C06CF3853C5" alt="image"></p>
+<pre><code class="language-csharp">using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using TaskScheduler;
+
+namespace Task
+{
+    /// &lt;summary&gt;
+    /// MainWindow.xaml 的交互逻辑
+    /// &lt;/summary&gt;
+    public partial class MainWindow : Window
+    {
+        private string TaskName = &quot;test&quot;;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            isStartup();
+        }
+        
+        private void OnSetupStartupButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (!HaveTaskScheduler(TaskName))
+                CreateTaskScheduler(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, &quot;xtw&quot;, &quot;Set startup&quot;);
+            else
+                GetTaskScheduler(TaskName).Enabled = true;
+            isStartup();
+        }
+
+        private void OnCancelStartupButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (HaveTaskScheduler(TaskName))
+                GetTaskScheduler(TaskName).Enabled = false;
+            isStartup();
+        }
+
+        private bool HaveTaskScheduler(string name)
+        {
+            IRegisteredTask task = GetTaskScheduler(name);
+            if (task == null)
+                return false;
+            else
+                return true;
+        }
+
+        private void isStartup()
+        {
+            if (HaveTaskScheduler(TaskName) &amp;&amp; GetTaskScheduler(TaskName).Enabled)
+                text.Content = &quot;应用已开机自启&quot;; // 此text是Windows 组件Label
+            else
+                text.Content = &quot;应用非开机自启&quot;;
+        }
+
+        private static IRegisteredTask GetTaskScheduler(string name)
+        {
+            // 新建任务
+            TaskSchedulerClass scheduler = new TaskSchedulerClass();
+            // 连接
+            scheduler.Connect(null, null, null, null);
+            // 获取创建任务的目录
+            ITaskFolder folder = scheduler.GetFolder(&quot;\\&quot;);
+            IRegisteredTask task;
+            try
+            {
+                task = folder.GetTask(name);
+            }
+            catch
+            {
+                return null;
+            }
+            return task;
+        }
+
+        private void CreateTaskScheduler(string file, string author, string desc)
+        {
+            // 新建任务
+            TaskSchedulerClass scheduler = new TaskSchedulerClass();
+            // 连接
+            scheduler.Connect(null, null, null, null);
+            // 获取创建任务的目录
+            ITaskFolder folder = scheduler.GetFolder(&quot;\\&quot;);
+            // 设置参数
+            ITaskDefinition task = scheduler.NewTask(0);
+            task.RegistrationInfo.Author = author; // 创建者
+            task.RegistrationInfo.Description = desc; //描述
+                                                      // 设置触发机制 (此处是 登录后)
+            task.Triggers.Create(_TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON);
+            // 设置动作 (此处为 exe运行程序)
+            IExecAction action = (IExecAction)task.Actions.Create(_TASK_ACTION_TYPE.TASK_ACTION_EXEC);
+            action.Path = file; //设置文件目录
+            //task.Settings.ExecutionTimeLimit = &quot;PTOS&quot;; //运行任务时间超时停止任务吗？PTOS不开启超时
+            task.Settings.DisallowStartIfOnBatteries = false; //只在交流电下才执行
+            task.Settings.RunOnlyIfIdle = false; // 仅当计算机空闲下才执行
+
+            IRegisteredTask regTask =
+                folder.RegisterTaskDefinition(TaskName, task, // 此处需要设置任务的名称（name）
+                (int)_TASK_CREATION.TASK_CREATE, null, // user
+                null,//passward
+                _TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN,
+                &quot;&quot;);
+            IRunningTask runTask = regTask.Run(null);
+        }
+    }
+}
+</code></pre>
+<h3 id="总结">总结</h3>
+<p>对于开发一般应用来说，开始菜单启动是最简单、有效的方法。对于开发 unity 应用来说，这也不失为是一种好方法。</p>
+<h3 id="参考链接">参考链接</h3>
+<ul>
+<li><a href="http://blog.csdn.net/arrowzz/article/details/69808761">C# 将程序添加开机启动的三种方式</a></li>
+<li><a href="http://blog.csdn.net/u010476348/article/details/53489967">Unity设置自启动项目</a></li>
+<li><a href="http://www.cnblogs.com/bomo/archive/2013/03/01/2938165.html">动态加载dll程序集</a></li>
+<li><a href="http://blog.csdn.net/jeepxiaozi/article/details/8067700">C#操作计划任务</a></li>
+</ul>
+
+            </div>
+          </article>
+        </div>
+        <div class="paper" data-aos="fade-in">
+          
+            <div class="next-post">
+              <div class="next">
+                下一篇
+              </div>
+              <a href="https://juzhen.space/post/markdown-guide">
+                <h3 class="post-title">
+                  Markdown指南
+                </h3>
+              </a>
+            </div>
+          
+        </div>
+        
+          
+            <div class="paper" data-aos="fade-in">
+              <div id="gitalk-container"></div>
+            </div>
+          
+
+          
+        
+      </div>
+
+      <div class="sm-12 md-4 col sidebar">
+  <div class="paper info-container">
+    <img src="https://juzhen.space/images/avatar.png?v=1556304089200" class="no-responsive avatar">
+    <div class="text-muted">juzhen.space</div>
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      最新文章
+    </div>
+    <div class="row">
+      <ul>
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/zuo-er-ting-feng-arts-ji-hua-di-yi-zhou">左耳听风ARTS计划 -- 第一周</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/htc-vive-wave-gai-lan">HTC VIVE Wave 概览</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/da-shu-ju-de-shua-ti-bi-bei">大数据的刷题必备</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/bo-li-xiao-guo-de-shader-xiao-guo">玻璃效果的 Shader 效果</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/bit-operation">位运算的刷题应用</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/laravel-huan-jing-da-jian-apache-he-nginx">Laravel 环境搭建 Apache 和 Nginx</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/git-webhooks-shi-xian-zi-dong-la-qu-dai-ma">git webhooks 实现自动拉取代码</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/jiang-obj-wen-jian-jie-xi-cheng-unity-mesh">将 obj 文件解析成 unity mesh</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/Unity application starts up automatically">unity应用开机自启</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/markdown-guide">Markdown指南</a>
+            </li>
+          
+        
+      </ul>
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      标签列表
+    </div>
+    <div class="row">
+      
+        <a href="https://juzhen.space/tag/左耳听风ARTS" class="badge secondary">
+          左耳听风ARTS
+        </a>
+      
+        <a href="https://juzhen.space/tag/bigdata" class="badge secondary">
+          bigdata
+        </a>
+      
+        <a href="https://juzhen.space/tag/刷题" class="badge success">
+          刷题
+        </a>
+      
+        <a href="https://juzhen.space/tag/bit operation" class="badge ">
+          bit operation
+        </a>
+      
+    </div>
+  </div>
+  <div class="paper">
+    Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+</script>
+
+
+  
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '80729f653146f76d242b',
+        clientSecret: 'e6dc0eee88151d2707fe6b81c1d4f5d388c0670f',
+        repo: 'xitangking.github.io',
+        owner: 'xitangking',
+        admin: ['xitangking'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

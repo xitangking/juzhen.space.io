@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Laravel 环境搭建 Apache 和 Nginx | 矩阵·空间</title>
+<meta name="description" content="juzhen.space">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="shortcut icon" href="https://juzhen.space/favicon.ico?v=1556304089200">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css" />
+<link rel="stylesheet" href="https://juzhen.space/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-139144367-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-139144367-1');
+</script>
+
+
+  </head>
+  <body>
+  
+    <nav class="navbar border fixed split-nav">
+  <div class="nav-brand">
+    <h3><a href="https://juzhen.space">矩阵·空间</a></h3>
+  </div>
+  <div class="collapsible">
+    <input id="collapsible1" type="checkbox" name="collapsible1">
+    <button>
+      <label for="collapsible1">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+      </label>
+    </button>
+    <div class="collapsible-body">
+      <ul class="inline">
+        
+          <li>
+            
+              <a href="/" class="menu">
+                首页
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/archives" class="menu">
+                归档
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/tags" class="menu">
+                标签
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/post/about" class="menu">
+                关于
+              </a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div id="top" class="row site">
+      <div class="sm-12 md-8 col">
+        <div class="paper">
+          <article class="article">
+            <h1>Laravel 环境搭建 Apache 和 Nginx</h1>
+            <p class="article-meta">
+              2017-12-29
+              
+            </p>
+            
+            <div class="post-content">
+              <p>Laravel 开发框架是一个非常优秀的前端框架，要将 Laravel 部署到服务器中需要经过一系列的操作。</p>
+<!-- more --> 
+<h2 id="安装-laravel">安装 Laravel</h2>
+<h3 id="laravel-简介">Laravel 简介</h3>
+<p><a href="https://laravel.com/">Laravel</a> 是一套简洁、优雅的 PHP Web 开发框架。它可以让你从面条一样杂乱的代码中解脱出来；它可以帮你构建一个完美的 web APP，而且每行代码都可以简洁、富于表达力。</p>
+<h3 id="安装依赖">安装依赖</h3>
+<p>由于默认的 yum 源 php 版本低于 Laravel 要求，所以需要添加第三方源：</p>
+<pre><code class="language-bash">rpm -Uvh https://mirror.webtatic.com/yum/el7/epel-release.rpm
+rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+</code></pre>
+<p>安装 nginx、php 及相关依赖：</p>
+<pre><code>yum -y install nginx mariadb-server php70w php70w-fpm php70w-mysql php70w-mcrypt php70w-dom php70w-mbstring
+</code></pre>
+<p>配置 Mariadb（MySQL）</p>
+<p>使用以下命令启动 mysql 并设为开启启动：</p>
+<pre><code>systemctl start mariadb
+systemctl enable mariadb
+</code></pre>
+<p>首次启用 mysql 时，我们需要执行以下指令进行配置：</p>
+<pre><code>mysql_secure_installation
+</code></pre>
+<p>过程中除下图中两次 输入及确认密码 外，一路按回车键选择默认值即可。</p>
+<p><img src="https://share-10039692.file.myqcloud.com/lab/ac197229e6/image/rep5b59cnz/image.png" alt="image"></p>
+<h3 id="安装-composer">安装 Composer</h3>
+<p><a href="https://getcomposer.org/">Composer</a> 是 php 的依赖管理工具，我们将使用它下载 Laravel 安装包。</p>
+<h4 id="下载-composer">下载 Composer</h4>
+<pre><code>curl -sS https://getcomposer.org/installer | php
+mv composer.phar /usr/local/bin/composer
+</code></pre>
+<p>设置环境变量，只有这样安装后系统才能找到 laravel 的执行文件：</p>
+<pre><code>export PATH=$PATH:/root/.config/composer/vendor/bin
+</code></pre>
+<h4 id="设置-swap">设置 Swap</h4>
+<p>为了避免 composer 安装应用过程中出现内存不足的问题，我们预先设置一下 swap [?]：</p>
+<pre><code class="language-bash">/bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024
+/sbin/mkswap /var/swap.1
+/sbin/swapon /var/swap.1
+</code></pre>
+<blockquote>
+<p>Swap 分区在系统的物理内存不够用的时候，把硬盘空间中的一部分空间释放出来，以供当前运行的程序使用。</p>
+</blockquote>
+<h3 id="laravel-安装">Laravel 安装</h3>
+<p>使用 Composer 安装 Laravel：</p>
+<pre><code class="language-bash">composer global require &quot;laravel/installer&quot;
+</code></pre>
+<h3 id="使用-laravel">使用 Laravel</h3>
+<h4 id="新建项目">新建项目</h4>
+<p>进入 /home 目录，我们创建一个 laravel 项目，命名为 blog：</p>
+<pre><code>cd /home
+laravel new blog
+</code></pre>
+<p>点击 /home/blog 可查看项目结构。</p>
+<h4 id="更新项目依赖">更新项目依赖</h4>
+<p>进入 blog 项目，使用 composer update --no-scripts 更新项目依赖：</p>
+<pre><code>cd blog
+composer update --no-scripts
+</code></pre>
+<h3 id="配置项目">配置项目</h3>
+<h4 id="配置目录权限">配置目录权限</h4>
+<p>为了运行 Laravel，我们需要为一些项目目录配置权限：</p>
+<pre><code>sudo chmod 775 /home/blog/storage
+sudo chmod 775 /home/blog/bootstrap/cache
+</code></pre>
+<h4 id="生成密钥">生成密钥</h4>
+<p>查看 blog 目录下是否包含 .env 文件，如果不存在，则右击 .env.example 文件，将其重命名为 .env。</p>
+<p>我们使用以下命令来生成一串密钥：</p>
+<pre><code>php artisan key:generate
+</code></pre>
+<p>执行后会得到如下输出：</p>
+<pre><code>Application key [...] set successfully.
+</code></pre>
+<p>打开 /config/app.php，找到如下一行：</p>
+<pre><code>'key' =&gt; env('APP_KEY'),
+</code></pre>
+<p>将生成的密钥填入（中括号中部分）：</p>
+<pre><code>'key' =&gt; env('APP_KEY', '...'),
+</code></pre>
+<h3 id="测试启动">测试启动</h3>
+<p>在 blog 目录下，我们使用下面命令来启用 开发服务器 测试访问：</p>
+<pre><code>sudo php artisan serve --host=0.0.0.0 --port=80
+</code></pre>
+<p>接着，我们可以打开 http://&lt;您的 CVM IP 地址&gt; 测试访问。</p>
+<h2 id="配置-nginx">配置 nginx</h2>
+<p>上面的 serve Artisan 命令一般只用于本地开发，而生产环境中我们需要使用 Web 服务器，这里我们选用了 nginx。</p>
+<h4 id="启动-php-fpm">启动 php-fpm</h4>
+<p>首先我们先按 Ctrl + C 停止掉刚刚的 serve。</p>
+<p>在 nginx 中，我们通过 php-fpm 来调用 php，通过下面命令启动 php-fpm：</p>
+<pre><code>systemctl start php-fpm
+systemctl enable php-fpm
+</code></pre>
+<p>可以使用下面的命令查看 php-fpm 是否启动 [?]：</p>
+<pre><code>netstat -nlpt | grep php-fpm
+</code></pre>
+<blockquote>
+<p>php-fpm 默认监听 9000 端口</p>
+</blockquote>
+<h4 id="编辑配置">编辑配置</h4>
+<p>打开 /etc/nginx/nginx.conf，备注或移除如下内容：</p>
+<pre><code class="language-php">server {
+    listen       80 default_server;
+    listen       [::]:80 default_server;
+    server_name  _;
+    root         /usr/share/nginx/html;
+
+    ...
+
+    error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+    }
+}
+</code></pre>
+<p>在 /etc/nginx/conf.d 目录下 创建 php.conf，然后在该文件中添加如下内容：</p>
+<pre><code class="language-php">server {
+    listen      80 default_server;
+    listen      [::]:80 default_server;
+    server_name _;
+    root        /home/blog/public;
+    index       index.php index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ .php$ {
+        fastcgi_pass   127.0.0.1:9000;
+        fastcgi_index  index.php;
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+    }
+}
+</code></pre>
+<h4 id="启动-nginx">启动 Nginx</h4>
+<pre><code>systemctl start nginx
+systemctl enable nginx
+</code></pre>
+<p>我们可以打开 http://&lt;您的 CVM IP 地址&gt; 测试访问。</p>
+<h2 id="配置-apache">配置 Apache</h2>
+<p>接下来就是配置apache的时候了，Apache 和 Nginx 可以二选一</p>
+<h3 id="安装apache">安装Apache</h3>
+<p>安装指令：</p>
+<pre><code>sudo apt-get install apache2
+</code></pre>
+<p>启动命令：</p>
+<pre><code>service apache2 start // 开启
+service apache2 stop // 关闭
+service apache2 restart // 重启
+</code></pre>
+<h3 id="主配置文件的目录">主配置文件的目录：</h3>
+<pre><code>/etc/apache2/apache2.conf
+</code></pre>
+<p>在配置文件中加入以下路由转发设置</p>
+<pre><code>&lt;Directory /var/www/项目目录/&gt;
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+&lt;/Directory&gt;
+</code></pre>
+<h3 id="具体网址配置文件目录">具体网址配置文件目录：</h3>
+<pre><code>/etc/apache2/sites-enabled/000-default.conf
+</code></pre>
+<p>编辑 000-default.conf 或新建一个配置文件，修改网站的根目录：</p>
+<pre><code>DocumentRoot /var/www/项目目录/public
+</code></pre>
+<h3 id="重新启动apache">重新启动Apache</h3>
+<pre><code>service apache2 restart
+</code></pre>
+<p>大功告成，我们可以打开 http://&lt;您的 CVM IP 地址&gt; 测试访问。</p>
+
+            </div>
+          </article>
+        </div>
+        <div class="paper" data-aos="fade-in">
+          
+            <div class="next-post">
+              <div class="next">
+                下一篇
+              </div>
+              <a href="https://juzhen.space/post/git-webhooks-shi-xian-zi-dong-la-qu-dai-ma">
+                <h3 class="post-title">
+                  git webhooks 实现自动拉取代码
+                </h3>
+              </a>
+            </div>
+          
+        </div>
+        
+          
+            <div class="paper" data-aos="fade-in">
+              <div id="gitalk-container"></div>
+            </div>
+          
+
+          
+        
+      </div>
+
+      <div class="sm-12 md-4 col sidebar">
+  <div class="paper info-container">
+    <img src="https://juzhen.space/images/avatar.png?v=1556304089200" class="no-responsive avatar">
+    <div class="text-muted">juzhen.space</div>
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      最新文章
+    </div>
+    <div class="row">
+      <ul>
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/zuo-er-ting-feng-arts-ji-hua-di-yi-zhou">左耳听风ARTS计划 -- 第一周</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/htc-vive-wave-gai-lan">HTC VIVE Wave 概览</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/da-shu-ju-de-shua-ti-bi-bei">大数据的刷题必备</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/bo-li-xiao-guo-de-shader-xiao-guo">玻璃效果的 Shader 效果</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/bit-operation">位运算的刷题应用</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/laravel-huan-jing-da-jian-apache-he-nginx">Laravel 环境搭建 Apache 和 Nginx</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/git-webhooks-shi-xian-zi-dong-la-qu-dai-ma">git webhooks 实现自动拉取代码</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/jiang-obj-wen-jian-jie-xi-cheng-unity-mesh">将 obj 文件解析成 unity mesh</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/Unity application starts up automatically">unity应用开机自启</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/markdown-guide">Markdown指南</a>
+            </li>
+          
+        
+      </ul>
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      标签列表
+    </div>
+    <div class="row">
+      
+        <a href="https://juzhen.space/tag/左耳听风ARTS" class="badge warning">
+          左耳听风ARTS
+        </a>
+      
+        <a href="https://juzhen.space/tag/bigdata" class="badge secondary">
+          bigdata
+        </a>
+      
+        <a href="https://juzhen.space/tag/刷题" class="badge ">
+          刷题
+        </a>
+      
+        <a href="https://juzhen.space/tag/bit operation" class="badge warning">
+          bit operation
+        </a>
+      
+    </div>
+  </div>
+  <div class="paper">
+    Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+</script>
+
+
+  
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '80729f653146f76d242b',
+        clientSecret: 'e6dc0eee88151d2707fe6b81c1d4f5d388c0670f',
+        repo: 'xitangking.github.io',
+        owner: 'xitangking',
+        admin: ['xitangking'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

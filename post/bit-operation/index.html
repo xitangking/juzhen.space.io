@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>位运算的刷题应用 | 矩阵·空间</title>
+<meta name="description" content="juzhen.space">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="shortcut icon" href="https://juzhen.space/favicon.ico?v=1556304089200">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css" />
+<link rel="stylesheet" href="https://juzhen.space/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-139144367-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-139144367-1');
+</script>
+
+
+  </head>
+  <body>
+  
+    <nav class="navbar border fixed split-nav">
+  <div class="nav-brand">
+    <h3><a href="https://juzhen.space">矩阵·空间</a></h3>
+  </div>
+  <div class="collapsible">
+    <input id="collapsible1" type="checkbox" name="collapsible1">
+    <button>
+      <label for="collapsible1">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+      </label>
+    </button>
+    <div class="collapsible-body">
+      <ul class="inline">
+        
+          <li>
+            
+              <a href="/" class="menu">
+                首页
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/archives" class="menu">
+                归档
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/tags" class="menu">
+                标签
+              </a>
+            
+          </li>
+        
+          <li>
+            
+              <a href="/post/about" class="menu">
+                关于
+              </a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div id="top" class="row site">
+      <div class="sm-12 md-8 col">
+        <div class="paper">
+          <article class="article">
+            <h1>位运算的刷题应用</h1>
+            <p class="article-meta">
+              2018-03-15
+              
+                <a href="https://juzhen.space/tag/刷题" class="badge secondary">
+                  刷题
+                </a>
+              
+                <a href="https://juzhen.space/tag/bit operation" class="badge warning">
+                  bit operation
+                </a>
+              
+            </p>
+            
+            <div class="post-content">
+              <h3 id="不申请临时变量的整数交换">不申请临时变量的整数交换</h3>
+<!-- more --> 
+<pre><code class="language-csharp">private static void swap(int a, int b)
+{
+    a = a ^ b;
+    b = a ^ b;
+    a = a ^ b;
+}
+</code></pre>
+<h4 id="关于这样做行之有效的原因">关于这样做行之有效的原因</h4>
+<p><strong>先来解释b 为什么会变成 a。</strong></p>
+<p>首先，异或运算是符合交换律和结合律的，就是说 a ^ b ^ c 等于 a ^ c ^ b 等于 (a ^ b) ^ c。</p>
+<p>所以，第二条语句就可以等价为 : b = a ^ b ^ b; ，因为（b ^ b） = 0 ,所以 b = a ^ 0 = a。</p>
+<p><strong>再来解释 a 为什么会变成 b。</strong></p>
+<p>结合以上说法，当运行到 第三行代码时，a = a ^ b 而 b = a,所以 a = a ^ b = a ^ b ^ a。</p>
+<p>同上，结合异或运算的交换律， a = (a ^ a) ^ b = b。</p>
+<p><strong>其实，只要是互逆运算就可以进行这种不用临时变量的交换运算，如 加减法，乘除法。</strong></p>
+<pre><code class="language-csharp">public static void swap(int a,int b)
+{
+    a = a + b;
+    b = a - b;
+    a = a - b;
+}
+</code></pre>
+<pre><code class="language-csharp">public static void swap(int a,int b)
+{
+    a = a * b;
+    b = a / b;
+    a = a / b;
+}
+</code></pre>
+<h3 id="不使用-来计算整数的加法写加法器">不使用 + 来计算整数的加法（写加法器）</h3>
+<pre><code class="language-csharp">public static int plus(int a, int b) 
+{
+    while (b != 0) 
+    {
+        int _a = a ^ b;
+        int _b = (a &amp; b) &lt;&lt; 1;
+        a = _a;
+        b = _b;
+    }
+    return a;
+}
+</code></pre>
+<h4 id="关于这样做行之有效的原因-2">关于这样做行之有效的原因</h4>
+<p><strong>主要利用异或运算来完成，异或运算有一个别名叫做：不进位加法。</strong></p>
+<p>那么a ^ b就是a和b相加之后，该进位的地方不进位的结果，相信这一点大家没有疑问，但是需要注意的是，这个加法是在二进制下完成的加法。</p>
+<p><strong>然后下面考虑哪些地方要进位？</strong></p>
+<p>什么地方需要进位呢？ 自然是a和b里都是1的地方</p>
+<p>a &amp; b就是a和b里都是1的那些位置，那么这些位置左边都应该有一个进位1，a &amp; b &lt;&lt; 1 就是进位的数值(a &amp; b的结果所有左移一位)。</p>
+<p><strong>那么我们把不进位的结果和进位的结果加起来，就是实际中a + b的和。</strong></p>
+<p>a + b = (a ^ b) + (a &amp; b &lt;&lt; 1)</p>
+<p>令:</p>
+<p>a' = a ^ b, b' = (a &amp; b) &lt;&lt; 1 =&gt; a + b = (a ^ b) + (a &amp; b &lt;&lt; 1) = a' + b'</p>
+<p>然后反复迭代，这个过程是在二进制下模拟加法的运算过程，进位不可能一直持续，所以b最终会变为0，也就是没有需要进位的了，因此重复做上述操作就可以
+最终求得a + b的值。</p>
+<h3 id="用-o1-时间检测整数-n-是否是-2-的幂次">用 O(1) 时间检测整数 n 是否是 2 的幂次</h3>
+<p>N如果是2的幂次，则N满足两个条件。</p>
+<p>N &gt; 0</p>
+<p>N的二进制表示中只有一个1, 注意只能有1个。</p>
+<p>因为N的二进制表示中只有一个1，所以使用N &amp; (N - 1)将N唯一的一个1消去，应该返回0。</p>
+<pre><code class="language-csharp">bool checkPowerOf2(int n) 
+{
+    return n &gt; 0 &amp;&amp; (n &amp; (n - 1)) == 0;
+}
+</code></pre>
+<h3 id="x-x-1的妙用">x &amp; (x - 1）的妙用</h3>
+<p>x &amp; (x - 1)消去x最后一位的1。</p>
+<h4 id="计算在一个-32-位的整数的二进制表式中有多少个-1">计算在一个 32 位的整数的二进制表式中有多少个 1</h4>
+<p>由x &amp; (x - 1)消去x最后一位的1可知。不断使用 x &amp; (x - 1) 消去x最后一位的1，计算总共消去了多少次即可。</p>
+<pre><code class="language-csharp">public int countOnes(int num) 
+{
+    int count = 0;
+    while (num != 0) // 不能是 &gt; 0,因为要考虑负数
+    {
+        num = num &amp; (num - 1);
+        count++;
+    }
+    return count;
+}
+</code></pre>
+<h4 id="如果要将整数a转换为b需要改变多少个bit位">如果要将整数A转换为B，需要改变多少个bit位？</h4>
+<p>这个应用是上面一个应用的拓展</p>
+<p>思考将整数A转换为B，如果A和B在第i（0 &lt;=i &lt; 32）个位上相等，则不需要改变这个BIT位，如果在第i位上不相等，则需要改变这个BIT位。</p>
+<p><strong>所以问题转化为了A和B有多少个BIT位不相同！</strong></p>
+<p>联想到位运算有一个异或操作，相同为0，相异为1，所以问题转变成了计算A异或B之后这个数中1的个数!</p>
+<pre><code class="language-csharp">public int countOnes(int num) 
+{
+    int count = 0;
+    while (num != 0) // 不能是 &gt; 0,因为要考虑负数
+    {
+        num = num &amp; (num - 1);
+        count++;
+    }
+    return count;
+}
+
+public int bitSwapRequired(int a, int b) 
+{
+    return countOnes(a ^ b);
+}
+</code></pre>
+<h3 id="应用给定一个含不同整数的集合返回其所有的子集">应用：给定一个含不同整数的集合，返回其所有的子集</h3>
+<p>思路就是使用一个正整数二进制表示的第i位是1还是0来代表集合的第i个数取或者不取。
+所以从0到2^n-1总共2^n个整数，正好对应集合的2^n个子集。如下是就是 整数 &lt;=&gt; 二进制 &lt;=&gt; 对应集合 之间的转换关系。</p>
+<pre><code class="language-csharp">public List&lt;List&lt;Integer&gt;&gt; bitSubsets(int[] nums) 
+{
+    Arrays.sort(nums);
+    List&lt;List&lt;Integer&gt;&gt; list = new ArrayList&lt;&gt;();
+    int n = nums.length;
+    for (int i = 0; i &lt; (1 &lt;&lt; n); ++i) {
+        List&lt;Integer&gt; subset = new ArrayList&lt;&gt;();
+        for (int j = 0; j &lt; n; j++) {
+            if((1 &lt;&lt; j &amp; i) != 0) {
+                subset.add(nums[j]);
+            }
+        }
+        list.add(subset);
+    }
+    return list;
+}
+</code></pre>
+<h3 id="巧用异或运算">巧用异或运算</h3>
+<h4 id="应用一数组中只有一个数出现一次剩下都出现两次找出出现一次的数">应用一：数组中，只有一个数出现一次，剩下都出现两次，找出出现一次的数</h4>
+<p>因为只有一个数恰好出现一个，剩下的都出现过两次，所以只要将所有的数异或起来，就可以得到唯一的那个数，因为相同的数出现的两次，异或两次等价于没有任何操作！</p>
+<pre><code class="language-csharp">public int singleNumber(int[] nums) 
+{
+    int result = 0, n = nums.length;
+    for (int i = 0; i &lt; n; i++)
+    {
+        result ^= nums[i];
+    }
+    return result;
+}
+</code></pre>
+<h4 id="应用二数组中只有一个数出现一次剩下都出现三次找出出现一次的数">应用二：数组中，只有一个数出现一次，剩下都出现三次，找出出现一次的数</h4>
+<p>因为其他数是出现三次的，也就是说，对于每一个二进制位，如果只出现一次的数在该二进制位为1，那么这个二进制位在全部数字中出现次数无法被3整除。</p>
+<p>对于每一位，我们让Two，One表示当前位的状态。</p>
+<p>我们看Two和One里面的每一位的定义，对于ith(表示第i位)：</p>
+<p><strong>如果Two里面ith是1，则ith当前为止出现1的次数模3的结果是2</strong></p>
+<p><strong>如果One里面ith是1，则ith目前为止出现1的次数模3的结果是1</strong></p>
+<p>注意Two和One里面不可能ith同时为1，因为这样就是3次，每出现3次我们就可以抹去（消去）。那么最后One里面存储的就是每一位模3是1的那些位，综合起来One也就是最后我们要的结果。</p>
+<p>如果B表示输入数字的对应位，Two+和One+表示更新后的状态</p>
+<p>那么新来的一个数B，此时跟原来出现1次的位做一个异或运算，&amp;上~Two的结果(也就是不是出现2次的)，那么剩余的就是当前状态是1的结果。</p>
+<p>同理Two ^ B （2次加1次是3次，也就是Two里面ith是1，B里面ith也是1，那么ith应该是出现了3次，此时就可以消去，设置为0），我们相当于会消去出现3次的位。</p>
+<p><strong>但是Two ^ B也可能是ith上Two是0，B的ith是1，这样Two里面就混入了模3是1的那些位！！！怎么办？我们得消去这些！我们只需要保留不是出现模3余1的那些位ith，而One是恰好保留了那些模3余1次数的位，`取反不就是不是模3余1的那些位ith么？最终对(~One+)取一个&amp;即可。</strong></p>
+<pre><code class="language-csharp">public int singleNumber(int[] nums) 
+{
+    int ones = 0, twos = 0;
+    for(int i = 0; i &lt; nums.length; i++)
+    {
+        ones = (ones ^ nums[i]) &amp; ~twos;
+        twos = (twos ^ nums[i]) &amp; ~ones;
+    }
+    return ones;
+}
+</code></pre>
+<h4 id="应用三数组中只有两个数出现一次剩下都出现两次找出出现一次的这两个数">应用三：数组中，只有两个数出现一次，剩下都出现两次，找出出现一次的这两个数</h4>
+<p>有了第一题的基本的思路，我们可以将数组分成两个部分，每个部分里只有一个元素出现一次，其余元素都出现两次。那么使用这种方法就可以找出这两个元素了。不妨假设出现一个的两个元素是x，y，那么最终所有的元素异或的结果就是等价于++res = x^y++。</p>
+<p>++并且res！=0++</p>
+<p><strong>为什么呢？ 如果res 等于0，则说明x和y相等了！！！！</strong></p>
+<p>因为res不等于0，那么我们可以一定可以找出res二进制表示中的某一位是1。</p>
+<p><strong>对于x和y，一定是其中一个这一位是1，另一个这一位不是1！！！细细琢磨， 因为如果都是0或者都是1，怎么可能异或出1</strong></p>
+<p>对于原来的数组，我们可以根据这个位置是不是1就可以将数组分成两个部分。++x，y一定在不同的两个子集中。++</p>
+<p><strong>而且对于其他成对出现的元素，要么都在x所在的那个集合，要么在y所在的那个集合。对于这两个集合我们分别求出单个出现的x 和 单个出现的y即可。</strong></p>
+<pre><code class="language-csharp">public int[] singleNumber(int[] nums) 
+{
+    //用于记录，区分“两个”数组
+    int diff = 0;
+    for(int i = 0; i &lt; nums.length; i ++) 
+    {
+        diff ^= nums[i];
+    }
+    //取最后一位1
+    //先介绍一下原码，反码和补码
+    //原码，就是其二进制表示（注意，有一位符号位）
+    //反码，正数的反码就是原码，负数的反码是符号位不变，其余位取反
+    //补码，正数的补码就是原码，负数的补码是反码+1
+    //在机器中都是采用补码形式存
+    //diff &amp; (-diff)就是取diff的最后一位1的位置
+    diff &amp;= -diff;
+    
+    int[] rets = {0, 0}; 
+    for(int i = 0; i &lt; nums.length; i ++) 
+    {
+        //分属两个“不同”的数组
+        if ((nums[i] &amp; diff) == 0) 
+        {
+            rets[0] ^= nums[i];
+        }
+        else 
+        {
+            rets[1] ^= nums[i];
+        }
+    }
+    return rets;
+}
+</code></pre>
+<h3 id="最后">最后</h3>
+<p>位运算的妙用到这就告一段落了，以上内容有一大部分是来自 <a href="http://www.jiuzhang.com/tutorial/bit-manipulation">九章算法位运算入门教程</a> ， 在 LintCode 上还有相应的编程练习，去练习一下会获得更好的效果。</p>
+
+            </div>
+          </article>
+        </div>
+        <div class="paper" data-aos="fade-in">
+          
+            <div class="next-post">
+              <div class="next">
+                下一篇
+              </div>
+              <a href="https://juzhen.space/post/laravel-huan-jing-da-jian-apache-he-nginx">
+                <h3 class="post-title">
+                  Laravel 环境搭建 Apache 和 Nginx
+                </h3>
+              </a>
+            </div>
+          
+        </div>
+        
+          
+            <div class="paper" data-aos="fade-in">
+              <div id="gitalk-container"></div>
+            </div>
+          
+
+          
+        
+      </div>
+
+      <div class="sm-12 md-4 col sidebar">
+  <div class="paper info-container">
+    <img src="https://juzhen.space/images/avatar.png?v=1556304089200" class="no-responsive avatar">
+    <div class="text-muted">juzhen.space</div>
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      最新文章
+    </div>
+    <div class="row">
+      <ul>
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/zuo-er-ting-feng-arts-ji-hua-di-yi-zhou">左耳听风ARTS计划 -- 第一周</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/htc-vive-wave-gai-lan">HTC VIVE Wave 概览</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/da-shu-ju-de-shua-ti-bi-bei">大数据的刷题必备</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/bo-li-xiao-guo-de-shader-xiao-guo">玻璃效果的 Shader 效果</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/bit-operation">位运算的刷题应用</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/laravel-huan-jing-da-jian-apache-he-nginx">Laravel 环境搭建 Apache 和 Nginx</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/git-webhooks-shi-xian-zi-dong-la-qu-dai-ma">git webhooks 实现自动拉取代码</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/jiang-obj-wen-jian-jie-xi-cheng-unity-mesh">将 obj 文件解析成 unity mesh</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/Unity application starts up automatically">unity应用开机自启</a>
+            </li>
+          
+        
+          
+            <li>
+              <a href="https://juzhen.space/post/markdown-guide">Markdown指南</a>
+            </li>
+          
+        
+      </ul>
+    </div>
+  </div>
+  <div class="paper">
+    <div class="sidebar-title">
+      标签列表
+    </div>
+    <div class="row">
+      
+        <a href="https://juzhen.space/tag/左耳听风ARTS" class="badge warning">
+          左耳听风ARTS
+        </a>
+      
+        <a href="https://juzhen.space/tag/bigdata" class="badge ">
+          bigdata
+        </a>
+      
+        <a href="https://juzhen.space/tag/刷题" class="badge success">
+          刷题
+        </a>
+      
+        <a href="https://juzhen.space/tag/bit operation" class="badge secondary">
+          bit operation
+        </a>
+      
+    </div>
+  </div>
+  <div class="paper">
+    Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  </div>
+</div>
+
+
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+</script>
+
+
+  
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '80729f653146f76d242b',
+        clientSecret: 'e6dc0eee88151d2707fe6b81c1d4f5d388c0670f',
+        repo: 'xitangking.github.io',
+        owner: 'xitangking',
+        admin: ['xitangking'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>
