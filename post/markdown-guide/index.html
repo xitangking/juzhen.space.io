@@ -1,88 +1,97 @@
+
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" />
-<meta name="description" content="" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+<meta charset="utf-8" >
+
 <title>Markdown指南 | 矩阵·空间</title>
-<link rel="shortcut icon" href="https://juzhen.space/favicon.ico?v=1587284714100">
+<meta name="description" content="juzhen.space">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://juzhen.space/favicon.ico?v=1587285036735">
 <link rel="stylesheet" href="https://juzhen.space/styles/main.css">
 
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
-<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
 
 
   </head>
   <body>
-    <div class="main">
-      <div class="main-content">
-        <div class="site-header">
-  <a href="https://juzhen.space">
-  <img class="avatar" src="https://juzhen.space/images/avatar.png?v=1587284714100" alt="">
-  </a>
-  <h1 class="site-title">
-    矩阵·空间
-  </h1>
-  <p class="site-description">
-    juzhen.space
-  </p>
-  <div class="menu-container">
-    
-      
-        <a href="/" class="menu">
-          首页
-        </a>
-      
-    
-      
-        <a href="/archives" class="menu">
-          归档
-        </a>
-      
-    
-      
-        <a href="/tags" class="menu">
-          标签
-        </a>
-      
-    
-      
-        <a href="/post/about" class="menu">
-          关于
-        </a>
-      
-    
-  </div>
-  <div class="social-container">
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://juzhen.space">
+        <img class="avatar" src="https://juzhen.space/images/avatar.png?v=1587285036735" alt="" width="32px" height="32px">
+      </a>
+      <a href="https://juzhen.space">
+        <h1 class="site-title">矩阵·空间</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i class="icon" :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }" @click="menuVisible = !menuVisible"></i>
+      </transition>
+    </div>
   </div>
 </div>
 
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
       
+        
+          <a href="/" class="menu purple-link">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="menu purple-link">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="menu purple-link">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="menu purple-link">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
         <div class="post-detail">
-          <article class="post">
-            <h2 class="post-title">
-              Markdown指南
-            </h2>
-            <div class="post-info">
-              <time class="post-time">
-                · 2017-07-06 ·
-              </time>
-              
-            </div>
+          
+          <h2 class="post-title">Markdown指南</h2>
+          <div class="post-info post-detail-info">
+            <span><i class="icon-calendar-outline"></i> 2017-07-06</span>
             
-            <div class="post-content">
-              <h1 id="一-利用markdown可以做什么">一、利用Markdown可以做什么？</h1>
+          </div>
+          <div class="post-content">
+            <h1 id="一-利用markdown可以做什么">一、利用Markdown可以做什么？</h1>
  <!-- more -->
 <h2 id="1-代码高亮">① 代码高亮</h2>
 <p><img src="http://note.youdao.com/iyoudao/wp-content/uploads/2016/09/1-1%E4%BB%A3%E7%A0%81%E9%AB%98%E4%BA%AE.png" alt="image"></p>
@@ -137,58 +146,86 @@
 <p>（1） 有道云笔记  <a href="http://note.youdao.com/download.html">下载</a></p>
 <p>（2）  vscode  <a href="https://code.visualstudio.com/">下载</a></p>
 
-            </div>
-          </article>
+          </div>
         </div>
-    
+
         
           <div class="next-post">
-            <div class="next">下一篇</div>
-            <a href="https://juzhen.space/post/lesslesshao-hao-xue-xi-greatergreater">
+            <a class="purple-link" href="https://juzhen.space/post/lesslesshao-hao-xue-xi-greatergreater">
               <h3 class="post-title">
-                《好好学习》
+                下一篇：《好好学习》
               </h3>
             </a>
-          </div>  
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
         
 
         
-          
-            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
-<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+      
 
-<div id="gitalk-container"></div>
-
-<script>
-
-  var gitalk = new Gitalk({
-    clientID: '80729f653146f76d242b',
-    clientSecret: 'e6dc0eee88151d2707fe6b81c1d4f5d388c0670f',
-    repo: 'xitangking.github.io',
-    owner: 'xitangking',
-    admin: ['xitangking'],
-    id: location.pathname,      // Ensure uniqueness and length less than 50
-    distractionFreeMode: false  // Facebook-like distraction free mode
-  })
-
-  gitalk.render('gitalk-container')
-
-</script>
-
-          
-
-          
-        
+      <div class="site-footer">
+  <div class="slogan">juzhen.space</div>
+  <div class="social-container">
     
-        <div class="site-footer">
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
   Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
 </div>
 
-<script>
-  hljs.initHighlightingOnLoad()
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
 </script>
 
-      </div>
-    </div>
+
+  
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '80729f653146f76d242b',
+        clientSecret: 'e6dc0eee88151d2707fe6b81c1d4f5d388c0670f',
+        repo: 'xitangking.github.io',
+        owner: 'xitangking',
+        admin: ['xitangking'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
   </body>
 </html>
