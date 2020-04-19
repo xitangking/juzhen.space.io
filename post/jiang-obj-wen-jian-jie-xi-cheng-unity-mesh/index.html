@@ -1,105 +1,85 @@
-<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" >
-
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>将 obj 文件解析成 unity mesh | 矩阵·空间</title>
-<meta name="description" content="juzhen.space">
-
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<link rel="shortcut icon" href="https://juzhen.space/favicon.ico?v=1584182659591">
-
+<link rel="shortcut icon" href="https://juzhen.space/favicon.ico?v=1587282586339">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="stylesheet" href="https://unpkg.com/papercss@1.6.1/dist/paper.min.css" />
 <link rel="stylesheet" href="https://juzhen.space/styles/main.css">
 
-
-  
-    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
-  
-
-  
-
 <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
-
-
-<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
-
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-139144367-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-139144367-1');
-</script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
 
 
   </head>
   <body>
-  
-    <nav class="navbar border fixed split-nav">
-  <div class="nav-brand">
-    <h3><a href="https://juzhen.space">矩阵·空间</a></h3>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://juzhen.space">
+  <img class="avatar" src="https://juzhen.space/images/avatar.png?v=1587282586339" alt="">
+  </a>
+  <h1 class="site-title">
+    矩阵·空间
+  </h1>
+  <p class="site-description">
+    juzhen.space
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
   </div>
-  <div class="collapsible">
-    <input id="collapsible1" type="checkbox" name="collapsible1">
-    <button>
-      <label for="collapsible1">
-        <div class="bar1"></div>
-        <div class="bar2"></div>
-        <div class="bar3"></div>
-      </label>
-    </button>
-    <div class="collapsible-body">
-      <ul class="inline">
-        
-          <li>
-            
-              <a href="/" class="menu">
-                首页
-              </a>
-            
-          </li>
-        
-          <li>
-            
-              <a href="/archives" class="menu">
-                归档
-              </a>
-            
-          </li>
-        
-          <li>
-            
-              <a href="/tags" class="menu">
-                标签
-              </a>
-            
-          </li>
-        
-          <li>
-            
-              <a href="/post/about" class="menu">
-                关于
-              </a>
-            
-          </li>
-        
-      </ul>
-    </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
   </div>
-</nav>
+</div>
 
-    <div id="top" class="row site">
-      <div class="sm-12 md-8 col">
-        <div class="paper">
-          <article class="article">
-            <h1>将 obj 文件解析成 unity mesh</h1>
-            <p class="article-meta">
-              2017-12-07
+      
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              将 obj 文件解析成 unity mesh
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2017-12-07 ·
+              </time>
               
-            </p>
+            </div>
             
             <div class="post-content">
               <p>obj 文件是三维模型中一种经典的通用的文件格式，他记录下了三维模型中的大部分必要信息，下面将尝试在 unity 中将 obj 解析成 unity 的 mesh 网格。</p>
@@ -290,190 +270,55 @@ public class ObjParser{
             </div>
           </article>
         </div>
-        <div class="paper" data-aos="fade-in">
-          
-            <div class="next-post">
-              <div class="next">
-                下一篇
-              </div>
-              <a href="https://juzhen.space/post/lesslessbao-lie-wei-lai-she-hui-de-9-da-sheng-cun-yuan-ze-greatergreater">
-                <h3 class="post-title">
-                  《爆裂：未来社会的9大生存原则》
-                </h3>
-              </a>
-            </div>
-          
-        </div>
+    
         
-          
-            <div class="paper" data-aos="fade-in">
-              <div id="gitalk-container"></div>
-            </div>
-          
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://juzhen.space/post/lesslessbao-lie-wei-lai-she-hui-de-9-da-sheng-cun-yuan-ze-greatergreater">
+              <h3 class="post-title">
+                《爆裂：未来社会的9大生存原则》
+              </h3>
+            </a>
+          </div>  
+        
 
-          
         
-      </div>
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
 
-      <div class="sm-12 md-4 col sidebar">
-  <div class="paper info-container">
-    <img src="https://juzhen.space/images/avatar.png?v=1584182659591" class="no-responsive avatar">
-    <div class="text-muted">juzhen.space</div>
-    <div class="social-container">
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    </div>
-  </div>
-  <div class="paper">
-    <div class="sidebar-title">
-      最新文章
-    </div>
-    <div class="row">
-      <ul>
-        
-          
-            <li>
-              <a href="https://juzhen.space/post/zuo-er-ting-feng-arts-ji-hua-di-yi-zhou">左耳听风ARTS计划 -- 第一周</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://juzhen.space/post/htc-vive-wave-gai-lan">HTC VIVE Wave 概览</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://juzhen.space/post/da-shu-ju-de-shua-ti-bi-bei">大数据的刷题必备</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://juzhen.space/post/bo-li-xiao-guo-de-shader-xiao-guo">玻璃效果的 Shader 效果</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://juzhen.space/post/bit-operation">位运算的刷题应用</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://juzhen.space/post/laravel-huan-jing-da-jian-apache-he-nginx">Laravel 环境搭建 Apache 和 Nginx</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://juzhen.space/post/git-webhooks-shi-xian-zi-dong-la-qu-dai-ma">git webhooks 实现自动拉取代码</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://juzhen.space/post/jiang-obj-wen-jian-jie-xi-cheng-unity-mesh">将 obj 文件解析成 unity mesh</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://juzhen.space/post/lesslessbao-lie-wei-lai-she-hui-de-9-da-sheng-cun-yuan-ze-greatergreater">《爆裂：未来社会的9大生存原则》</a>
-            </li>
-          
-        
-          
-            <li>
-              <a href="https://juzhen.space/post/Unity application starts up automatically">unity应用开机自启</a>
-            </li>
-          
-        
-          
-        
-          
-        
-      </ul>
-    </div>
-  </div>
-  <div class="paper">
-    <div class="sidebar-title">
-      标签列表
-    </div>
-    <div class="row">
-      
-        <a href="https://juzhen.space/tag/bigdata" class="badge ">
-          bigdata
-        </a>
-      
-        <a href="https://juzhen.space/tag/刷题" class="badge success">
-          刷题
-        </a>
-      
-        <a href="https://juzhen.space/tag/bit operation" class="badge ">
-          bit operation
-        </a>
-      
-        <a href="https://juzhen.space/tag/读书笔记" class="badge success">
-          读书笔记
-        </a>
-      
-    </div>
-  </div>
-  <div class="paper">
-    Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
-  </div>
-</div>
+<div id="gitalk-container"></div>
 
+<script>
 
-    </div>
+  var gitalk = new Gitalk({
+    clientID: '80729f653146f76d242b',
+    clientSecret: 'e6dc0eee88151d2707fe6b81c1d4f5d388c0670f',
+    repo: 'xitangking.github.io',
+    owner: 'xitangking',
+    admin: ['xitangking'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
 
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-
-<script type="application/javascript">
-
-AOS.init();
-
-hljs.initHighlightingOnLoad()
+  gitalk.render('gitalk-container')
 
 </script>
 
+          
 
-  
-  
-    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
-    <script>
+          
+        
+    
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+</div>
 
-      var gitalk = new Gitalk({
-        clientID: '80729f653146f76d242b',
-        clientSecret: 'e6dc0eee88151d2707fe6b81c1d4f5d388c0670f',
-        repo: 'xitangking.github.io',
-        owner: 'xitangking',
-        admin: ['xitangking'],
-        id: location.pathname,      // Ensure uniqueness and length less than 50
-        distractionFreeMode: false  // Facebook-like distraction free mode
-      })
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
 
-      gitalk.render('gitalk-container')
-
-    </script>
-  
-
-  
-
-
-
-
+      </div>
+    </div>
   </body>
 </html>
