@@ -5,7 +5,7 @@
     
 <meta charset="utf-8" >
 
-<title>bit operation | 矩阵·空间</title>
+<title>比特世界漫游指南|发起 | 矩阵·空间</title>
 <meta name="description" content="juzhen.space">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -15,6 +15,12 @@
 <link rel="shortcut icon" href="https://juzhen.space/favicon.ico?v=1587283489071">
 <link rel="stylesheet" href="https://juzhen.space/styles/main.css">
 
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
 
 
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -77,56 +83,51 @@
 
 
       <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">比特世界漫游指南|发起</h2>
+          <div class="post-info post-detail-info">
+            <span><i class="icon-calendar-outline"></i> 2020-04-19</span>
+            
+              <span>
+                <i class="icon-pricetags-outline"></i>
+                
+                  <a href="https://juzhen.space/tag/4oLak5ZK5">
+                    比特世界漫游指南
+                    
+                  </a>
+                
+              </span>
+            
+          </div>
+          <div class="post-content">
+            <p>受《银河系漫游指南》调查员福特大老爷的委托，我开始调查地球上真正高速崛起的第三世界——比特世界，并攥写比特世界漫游指南专栏，以图在《银河系漫游指南》中为地球这一词条增添更多内容。</p>
+ <!-- more --> 
+<blockquote>
+<p><strong>本专栏起源于一场无聊的派对。</strong></p>
+</blockquote>
 
-        <div class="current-tag-container">
-          <h2 class="title">
-            <i class="icon icon-pricetags-outline"></i> bit operation
-          </h2> 
+          </div>
         </div>
 
         
-<section class="post-item">
-    <div class="content">
-      <a href="https://juzhen.space/post/bit-operation">
-        <h2 class="post-title">位运算的刷题应用</h2>
-      </a>
-      <div class="post-abstract">
-        <h3 id="不申请临时变量的整数交换">不申请临时变量的整数交换</h3>
-
+          <div class="next-post">
+            <a class="purple-link" href="https://juzhen.space/post/htc-vive-wave-gai-lan">
+              <h3 class="post-title">
+                下一篇：HTC VIVE Wave 概览
+              </h3>
+            </a>
+          </div>
+          
       </div>
-      <div class="post-info">
-        <span><i class="icon icon-calendar-outline"></i> 2018-03-15</span>
+
+      
         
-          <span>
-            <i class="icon icon-pricetags-outline"></i>
-            
-              <a href="https://juzhen.space/tag/刷题">
-                刷题
-                
-                  ，
-                
-              </a>
-            
-              <a href="https://juzhen.space/tag/bit operation">
-                bit operation
-                
-              </a>
-            
-          </span>
+          <div id="gitalk-container"></div>
         
-      </div>
-    </div>
-    
-  </section>
 
-
-<div class="pagination-container">
-  
-  
-</div>
-
-
-      </div>
+        
+      
 
       <div class="site-footer">
   <div class="slogan">juzhen.space</div>
@@ -160,6 +161,29 @@ var app = new Vue({
 })
 
 </script>
+
+
+  
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '80729f653146f76d242b',
+        clientSecret: 'e6dc0eee88151d2707fe6b81c1d4f5d388c0670f',
+        repo: 'xitangking.github.io',
+        owner: 'xitangking',
+        admin: ['xitangking'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
 
 
 
