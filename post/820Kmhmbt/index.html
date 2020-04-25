@@ -1,0 +1,568 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>Unity如何把一个对象从内存序列化到磁盘 | 矩阵·空间</title>
+<meta name="description" content="juzhen.space">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://juzhen.space/favicon.ico?v=1587814699607">
+<link rel="stylesheet" href="https://juzhen.space/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://juzhen.space">
+        <img class="avatar" src="https://juzhen.space/images/avatar.png?v=1587814699607" alt="" width="32px" height="32px">
+      </a>
+      <a href="https://juzhen.space">
+        <h1 class="site-title">矩阵·空间</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i class="icon" :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }" @click="menuVisible = !menuVisible"></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+      
+        
+          <a href="/" class="menu purple-link">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="menu purple-link">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="menu purple-link">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="menu purple-link">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">Unity如何把一个对象从内存序列化到磁盘</h2>
+          <div class="post-info post-detail-info">
+            <span><i class="icon-calendar-outline"></i> 2020-04-25</span>
+            
+          </div>
+          <div class="post-content">
+            <h3 id="预制文件prefab和场景文件unity和材质文件mat究竟记录了什么">预制文件(.prefab)和场景文件(.unity)和材质文件(.mat)究竟记录了什么？</h3>
+<p>我们可以打开SampleScene.unity，找到我们最熟悉的GameObject</p>
+<pre><code>--- !u!1 &amp;170076733
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 170076735}
+  - component: {fileID: 170076734}
+  m_Layer: 0
+  m_Name: Directional Light
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+</code></pre>
+<p>我们看几个关键的信息。
+--- !u!1 &amp;170076733</p>
+<ul>
+<li>看到这个!u!1。这个1是什么呢？是GameObject的PersistentTypeID，Unity的每个继承自底层Object类的类型都有一个PersistentTypeID，Unity在反序列化这段GameObject的文本数据为内存的GameObject对象时，就可以找到这个对象是什么类型。</li>
+<li>然后我们看到紧跟在后面的 &amp;170076733，这个是170076733是什么呢？是GameObject的LocalID。既然叫LocalID，那它所谓的Local(本地)是在什么范围内呢？是在这个scene文件是唯一的。也就是说LocalID在另一个scene/prefab文件，可能会重复。 所以LocalID是一个对象在一个文件内的唯一标识符。</li>
+</ul>
+<pre><code>  m_Component:
+  - component: {fileID: 170076735}
+  - component: {fileID: 170076734}
+</code></pre>
+<ul>
+<li>看到这个{fileID: 170076735}和{fileID: 170076734}, 这个170076735和170076734是什么意思呢？我们可以在文件内搜索这两个数字：</li>
+</ul>
+<pre><code>--- !u!108 &amp;170076734
+Light:
+ m_ObjectHideFlags: 0
+--- !u!4 &amp;170076735
+Transform:
+ m_ObjectHideFlags: 0
+</code></pre>
+<ul>
+<li>显而易见，就是这个Light对象以及Transform对象的LocalID, 我们刚刚提到过LocalID是一个对象在一个文件的唯一标识符。所以这里{fileID: xxxx}所表示的信息就是GameObject的m_Component这个数组，引用了两个对象，分别是Light和Transform。</li>
+<li>所以为什么它叫做fileID呢？对，就不应该叫fileID，fileID其实另有作用。这是我最后一次把LocalID误称为fileID，后面我会统一称之为LocalID。</li>
+</ul>
+<p>继续，我们把mat_black256.mat打开。</p>
+<pre><code>--- !u!21 &amp;2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: mat_black256
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+
+m_SavedProperties:
+    ...
+    - first: name: _MainTex
+      second:
+        m_Texture: {fileID: 2800000, guid: c257c96cd50ad4ae6af2ac48a37e9e34, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+</code></pre>
+<ul>
+<li>
+<p>我们先看后面的{fileID: 2800000, guid: c257c96cd50ad4ae6af2ac48a37e9e34, type: 3}，看上下文我们大概能知道这是材质mat_black256.mat的_MainTex属性引用了一张贴图。那么如何找出这张图呢？我们知道这个2800000是LocalID，表示的是一个对象在一个文件内的唯一标识符。但是呢！当我们在文件内搜索2800000时发现啥也没找到？！这是什么意思呢？这是表示这个对象并不在这个文件，在另外一个文件内，那么问题来了，是在哪一个文件呢？这是在.meta的guid为c257c96cd50ad4ae6af2ac48a37e9e34的文件内。可以全局搜索这个guid：</p>
+</li>
+<li>
+<p>所以引用的是black256.png这张贴图。这就是为什么我们提交svn的时候不要忘记把meta提交的原因。</p>
+</li>
+<li>
+<p>所以guid是标识一个文件的唯一标识符。</p>
+</li>
+</ul>
+<p>我们回过头看，看之前的一个数据：
+m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}</p>
+<ul>
+<li>
+<p>guid是一大堆0？！这是什么意思呢？这表示，我们材质引用的这个shader，其实是内置shader，从广义上讲，所有的内置资产，他们的guid都是0。内置资产是通过路径直接访问的，它并不需要guid做二次转发。</p>
+</li>
+<li>
+<p>我们看到最后有一个type：0，这个是什么意思？这其实表示资产的类型。对于Unity来讲，资产只有4种类型：9
+struct FileIdentifier
+{
+enum { kNonAssetType = 0, kDeprecatedCachedAssetType = 1, kSerializedAssetType = 2, kMetaAssetType = 3 };
+...</p>
+<ul>
+<li>kNonAssetType, 内置资产。这些资产guid都是0，得通过路径(path)直接找到</li>
+<li>kDeprecatedCachedAssetType,不知道，源码没有一个地方在用。</li>
+<li>kSerializedAssetType, 如果unity的数据会直接侵入式地存进资产本体，那么就是这个类型，比如scene,prefab,material,animationclip</li>
+<li>kMetaAssetType,如果unity的数据不会侵入式地存进资产本体，而是在同级目录下生成一个同名的.meta文件，并且相关的配置数据都存在.meta里面。就是这个类型。比如fbx,texture</li>
+</ul>
+</li>
+<li>
+<p>这个type用来告诉unity要以什么方式导入这个资产。</p>
+</li>
+<li>
+<p>这里呢有一个问题，我们先回顾一下，如何定位一个对象?guid+LocalID，那么当我们真的去加载一个对象的时候，还是得先把guid转成在磁盘中的绝对路径，然后走标准的IO操作去把文件给读起来，然后用LocalID去找到对应的对象文本，反序列化为内存对象。那么问题来了，guid到绝对路径的映射存在哪里呢？在Library/metadata里面(具体是在guid文件还是在guid.info文件我还没看，后面再补。)，这样做有什么好处呢？不用依赖于本地文件系统的路径表达。不论编辑器是在pc还是mac都只要维护guid的稳定就可以了。不用去处理各种路径表达兼容性问题。相当于是虚拟路径。</p>
+</li>
+<li>
+<p>总之，简单来看，guid就是本地文件绝对路径的别名。</p>
+</li>
+<li>
+<p>那么guid+LocaID，就是在文本状态时候，一个对象的指针。
+什么是InstanceID？</p>
+</li>
+<li>
+<p>首先所有继承自底层Object类型的对象，都会有InstanceID。</p>
+</li>
+<li>
+<p>我先说结论，InstanceID，就是在内存状态的时候，一个对象的指针。</p>
+</li>
+<li>
+<p>所以为什么InstanceID在源码里面又叫HeapID,MemoryID。</p>
+</li>
+<li>
+<p>InstanceID分为两种，一种是从-1开始往下减少的。这些对象是在运行时直接实例化的对象。另一种是从1开始往上增加的，这些对象是在运行时从磁盘加载起来实例化的对象。</p>
+</li>
+<li>
+<p>从磁盘加载起来的对象，会有一个地方存储InstanceID到guid+LocalID的互相映射，这样就可以把一个对象从文本状态和内存状态统一起来。 这个地方叫Remapper:
+class Remapper
+{
+SerializedObjectToInstanceIDMap m_SerializedObjectToInstanceID;
+InstanceIDToSerializedObjectMap m_InstanceIDToSerializedObject;
+}</p>
+</li>
+<li>
+<p>这个SerializedObject是什么呢，他有两个字段：
+struct SerializedObjectIdentifier
+{
+SInt32 serializedFileIndex;
+LocalIdentifierInFileType localIdentifierInFile;
+}</p>
+</li>
+<li>
+<p>这个serializedFileIndex我稍后再讲，我可以先说结论，用serializedFileIndex可以找出guid(在编辑器)。</p>
+</li>
+<li>
+<p>这个localIdentifierInFileType,不要被它冗长的名字吓到了，其实就是LocalID
+什么是AssetBundle？</p>
+</li>
+<li>
+<p>在我的理解里，它就是一个压缩包，把一些资产打包在一起。平时我们打压缩包有两种需求，压缩和加密。(有了AssetStudio，AssetBundle的加密功能已经形同虚设了)</p>
+</li>
+<li>
+<p>总之它就是一个压缩包。用的压缩算法，随便找个压缩软件都能找到。</p>
+</li>
+<li>
+<p>我们会在什么场合使用压缩包，就等价于什么场合使用AssetBundle。压缩包该有的问题，AssetBundle都有。
+如何知道资产会打到哪个AssetBundle下呢？</p>
+</li>
+<li>
+<p>分两种。</p>
+</li>
+<li>
+<p>一种是我们在编辑器内，资产的inspector中手动配置的目标AssetBundle名字。这样就一定会打进目标的包里面。</p>
+</li>
+<li>
+<p>比如这里的材质资产 mat_black256就会打包到名为materials的AssetBundle中。</p>
+</li>
+<li>
+<p>另一种当然就是没有在inspector中配置目标AssetBundle名字的，也就是默认值none。这种没有配置目标AssetBundle的资产，如果被某个配置了目标AssetBunle的母资产引用了。那么就会打进母资产的AssetBunble里面。(我还没有去确认，但是我认为这就是冗余资产的起因)。</p>
+</li>
+<li>
+<p>这种被打进母资产AssetBundle的这些&quot;无主&quot;资产，他们存放的地方有特殊的命名方式。又分为两种。</p>
+</li>
+<li>
+<p>如果母资产是全部都是scene的AssetBundle(SceneBundle)。那么命名是&quot;BuildPlayer-*.sharedAssets&quot;</p>
+</li>
+<li>
+<p>如果母资产是普通资产的AssetBundle(NormalBundle)。那么命名是&quot;sharedassets*.asset&quot;</p>
+</li>
+<li>
+<p>特别的，如果这些&quot;无主&quot;资产，是贴图的话，会打到&quot;.resS&quot;这个后缀的文件中。单独打到这里是为了专门开一个读取文件的句柄做贴图的流式异步加载(AsyncUpload)。  虽然贴图资产会单独打到.resS后缀的文件，供AsyncUploadManager做流式异步加载到VRAM中。但是其实和AssetBundle的读取句柄用的是同一个句柄。这一切与Unity底层自己实现的一个虚拟文件系统有关(FileSystem)</p>
+</li>
+<li>
+<p>那么回过头来，有一个问题，你看这个材质资产 mat_black256，其实引用了一张贴图，叫black256。但是这个贴图其实归到了一个叫textures的AssetBundle中。那么这个black256会打到哪个AssetBundle呢？其实还是打到textures这个AssetBundle中。</p>
+</li>
+<li>
+<p>那么下一个问题。那我加载这个materials这个AssetBundle的时候，这个材质球怎么知道要用的贴图在哪呢？对于这种在另一个AssetBundle的资产，其实会在AssetBundle内单独留一个叫PreloadData的数据结构，存储依赖的AssetBundle的信息。保证能够找到依赖的AssetBundle。</p>
+</li>
+<li>
+<p>我觉得看到这里大家应该能看懂这个链接AssetBundle原理里这张图上面说的信息了。</p>
+</li>
+<li>
+<p>注意normal bundle的SerializedFile里面也有PreloadData对象，这个图里没画。</p>
+</li>
+<li>
+<p>大家注意到上图scene bundle的SerializedFile里面有一个Objects对象，这个是什么呢？其实就是SampleScene.unity的数据(场景文件本身的数据)。</p>
+</li>
+<li>
+<p>所以到这里大家应该能明白，SerializedFile是干什么的了，它记录了以下信息。</p>
+<ul>
+<li>AB包里面有多少对象，分别是什么，多大，在哪开始读取。(SerializedFile::m_Object)</li>
+<li>每个对象的类型是什么。(SerializedFile::m_Types)</li>
+<li>如果有mono脚本的话，脚本的类型是什么(SerializedFile::m_ScriptTypes)</li>
+<li>如果包里的对象引用了其他AB里的资产，分别在哪里可以找到(SerializedFile::m_Externals)</li>
+<li>以及包内对象本身的数据，用SerializedFile::m_Object记录的位置信息来读取。</li>
+</ul>
+</li>
+<li>
+<p>那到这里就可以解释之前说的，什么是serializedFileIndex了，所有加载的AssetBundle，都会把里面的SerializedFile存到同一个地方，这个地方叫PersistentManager::m_Streams</p>
+</li>
+<li>
+<p>一个对象从哪个AssetBundle加载起来的，它持有的SerialziedFileIndex就指向了其归属AssetBundle的SerialziedFile。(所以为什么说SerializedFileIndex等价于guid，具体转换代码我得找一下)
+Unity究竟是如何去找这些依赖的资产的呢？</p>
+</li>
+<li>
+<p>我先说结论，所有的依赖都已经明文写在了.prefab(预制)/.unity(场景)/.mat(材质)/.asset(ScriptableObject)/.meta(Meta)中。</p>
+</li>
+<li>
+<p>Unity如何写出上述所有文件的依赖，也就以相同的方式收集依赖。</p>
+</li>
+<li>
+<p>我们来看一个简单的例子。继续以SampleScene.unity中的GameObject为例子。
+--- !u!1 &amp;170076733
+GameObject:
+m_ObjectHideFlags: 0
+m_CorrespondingSourceObject: {fileID: 0}
+m_PrefabInstance: {fileID: 0}
+m_PrefabAsset: {fileID: 0}
+serializedVersion: 6
+m_Component:</p>
+<ul>
+<li>component: {fileID: 170076735}</li>
+<li>component: {fileID: 170076734}
+m_Layer: 0
+m_Name: Directional Light
+m_TagString: Untagged
+m_Icon: {fileID: 0}
+m_NavMeshLayer: 0
+m_StaticEditorFlags: 0
+m_IsActive: 1</li>
+</ul>
+</li>
+<li>
+<p>这段文本是如何生成的呢？关键在于一个方法：Object::Transfer</p>
+</li>
+<li>
+<p>对于每个在Unity底层，继承自Object类的子类，都会用宏DECLARE_OBJECT_SERIALIZE()；声明一系列序列化方法。
+class EXPORT_COREMODULE GameObject : public EditorExtension
+{
+REGISTER_CLASS(GameObject);
+DECLARE_OBJECT_SERIALIZE();
+...
+}</p>
+</li>
+<li>
+<p>这个宏内部就声明了Transfer的虚函数。用多态来实现各自对象的序列化方法。</p>
+</li>
+</ul>
+<p>// Should be placed in every serializable object derived class (DECLARE_OBJECT_SERIALIZE())
+#define DECLARE_OBJECT_SERIALIZE(...) /* the &quot;...&quot; will be removed in the near future */ <br>
+public: <br>
+...
+template<class TransferFunction> void Transfer (TransferFunction&amp; transfer); <br>
+virtual void VirtualRedirectTransfer (GenerateTypeTreeTransfer&amp; transfer) override; <br>
+virtual void VirtualRedirectTransfer (SafeBinaryRead&amp; transfer) override; <br>
+virtual void VirtualRedirectTransfer (StreamedBinaryWrite&amp; transfer) override; <br>
+virtual void VirtualRedirectTransfer (StreamedBinaryRead&amp; transfer) override; <br>
+virtual void VirtualRedirectTransfer (RemapPPtrTransfer&amp; transfer) override; <br>
+virtual void VirtualRedirectTransfer (YAMLRead&amp; transfer) override; <br>
+virtual void VirtualRedirectTransfer (YAMLWrite&amp; transfer) override; <br>
+virtual void VirtualRedirectTransfer (JSONRead&amp; transfer) override; <br>
+virtual void VirtualRedirectTransfer (JSONWrite&amp; transfer) override; <br>
+...</p>
+<ul>
+<li>
+<p>我们先看GameObject的Transfer方法，这里的Transfer方法给出的是需要序列化的数据。代码很长，我截取以下有代表性的一小段。
+template<class TransferFunction>
+void GameObject::Transfer(TransferFunction&amp; transfer)
+{
+Super::Transfer(transfer);
+transfer.SetVersion(6);
+TransferComponents(transfer);
+TRANSFER(m_Layer); // 序列化枚举
+...
+transfer.Transfer(m_Name, &quot;m_Name&quot;);
+TRANSFER(m_Tag);
+transfer.Transfer(m_IsActive, &quot;m_IsActive&quot;);
+...
+}</p>
+</li>
+<li>
+<p>可以看到其实就是把自己成员变量的值和名字一一交了出去。</p>
+</li>
+<li>
+<p>但是呢！真正地决定要如何序列化拿到的这份数据的，其实靠的是后面声明的virtual void VirtualRedirectTransfer (XXXTransfer&amp; transfer) override</p>
+</li>
+<li>
+<p>对于我们在编辑器看到的序列化的资产，用的是YAMLRead 和 YAMLWrite, 通过类型萃取调用到各自对象的Transfer方法拿到序列化数据，包括值和引用，然后再决定用来干嘛。对于YamlWrite当然就是直接生成我们熟悉的.prefab/.unity/.mat/.asset/.meta了。
+template<class T>
+void YAMLWrite::Transfer(T&amp; data, const char* name, TransferMetaFlags metaFlag)
+{
+if (m_Error)
+return;
+if (AssetMetaDataOnly() &amp;&amp; HasFlag(metaFlag, kIgnoreInMetaFiles))
+return;
+PushMetaFlag(metaFlag);
+int parent = GetNode();
+m_CurrentNode = -1;
+TextSerializeTraits<T>::Transfer(data, *this); //类型萃取
+if (m_CurrentNode != -1)
+ParseAndAppendToNode(parent, name, m_CurrentNode); //生成文件
+PopMetaFlag();
+m_CurrentNode = parent;
+}</p>
+</li>
+<li>
+<p>而在打包AssetBundle的时候，其实用的是RemapPPtrTransfer 来收集依赖 代码在CollectSaveSceneDependencies::CollectWithRoots(Scene Bundle调用这个方法收集依赖)和ContentDependencyCollector(Normal Bundle调用这个方法收集依赖)。这里截取关键的一小段：
+void ContentDependencyCollector::CalculateDependencies(InstanceID instanceID)
+{
+m_Objects.push_back(instanceID);
+...
+// Process objects for dependencies
+while (!m_Objects.empty())
+{
+instanceID = <em>(m_Objects.end() - 1);
+m_Objects.erase_swap_back(m_Objects.end() - 1);
+Object</em> targetObject = dynamic_instanceID_cast&lt;Object*&gt;(instanceID);
+...
+RemapPPtrTransfer transferFunction(kBuildPlayerOnlySerializeBuildProperties | kSerializeGameRelease, false);
+transferFunction.SetGenerateIDFunctor(this);
+targetObject-&gt;VirtualRedirectTransfer(transferFunction);
+}
+}
+Unity会如何处理循环引用的资产呢？</p>
+</li>
+<li>
+<p>如果一个资产已经显式设置了目标AssetBundle，是不用担心循环引用的。顶多是加载的时候控制谁先加载的问题。这个Unity在加载有依赖关系的AssetBundle的时候已经做了排序了。</p>
+</li>
+<li>
+<p>为什么说上面一句不用担心循环引用的问题。因为AssetBundle在加载的时候，已经分配了和包内资产有关的所有InstanceID，包括根资产和依赖资产(哪怕依赖资产在另外一个AssetBundle内)。</p>
+</li>
+<li>
+<p>我这个主要想说的是，有一个法外之地。是sharedAsset。</p>
+</li>
+<li>
+<p>我前面已经提到，sharedAsset放的都是&quot;无主&quot;资产，也就是没有显式设置目标AssetBundle。但是因为被依赖而打包进来的资产。这些资产有些时候的冗余是可以去掉的。UnitySBP专门有一个函数来做这个事情：GenerateBundlePacking::FilterReferencesForAsset</p>
+</li>
+<li>
+<p>这个函数只做了一件事情。我画个图来示意以下。</p>
+</li>
+<li>
+<p>BundleA引用了BundleB，BundleB引用了这个&quot;无主&quot;资产，BundleA也引用了这个&quot;无主&quot;资产。</p>
+</li>
+<li>
+<p>结果就是BundleA会把这个&quot;无主&quot;资产排除到sharedAsset之外。因为加载BundleA的时候会预加载BundleB,BundleB的sharedAsset就会帮忙把这个&quot;无主&quot;资产一同加载进来。避免了冗余。</p>
+</li>
+<li></li>
+</ul>
+<p>讲了这么多，那到底AssetBundle是怎么把一个对象打到磁盘上的？</p>
+<ul>
+<li>来看到SBP的默认打包管线。其实是一系列打包任务的链式调用，在DefaultBuildTasks::AssetBundleCompatible()中。
+static IList<IBuildTask> AssetBundleCompatible()
+{
+var buildTasks = new List<IBuildTask>();
+// Setup
+buildTasks.Add(new SwitchToBuildPlatform());
+buildTasks.Add(new RebuildSpriteAtlasCache());
+// Player Scripts
+buildTasks.Add(new BuildPlayerScripts());
+buildTasks.Add(new PostScriptsCallback());
+// Dependency
+buildTasks.Add(new CalculateSceneDependencyData());
+buildTasks.Add(new CalculateAssetDependencyData());
+buildTasks.Add(new StripUnusedSpriteSources());
+buildTasks.Add(new PostDependencyCallback());
+// Packing
+buildTasks.Add(new GenerateBundlePacking());
+buildTasks.Add(new GenerateBundleCommands());
+buildTasks.Add(new GenerateSubAssetPathMaps());
+buildTasks.Add(new GenerateBundleMaps());
+buildTasks.Add(new PostPackingCallback());
+// Writing
+buildTasks.Add(new WriteSerializedFiles());
+buildTasks.Add(new ArchiveAndCompressBundles());
+buildTasks.Add(new AppendBundleHash());
+buildTasks.Add(new PostWritingCallback());
+// Generate manifest files
+// TODO: IMPL manifest generation
+return buildTasks;
+}</li>
+<li>总共有5步。</li>
+<li>第一步是Setup，做的是切换到目标平台和重新打包图集。这个没细看。以后再说。</li>
+<li>第二步是Player Scripts，做的是编译脚本。生成dll</li>
+<li>第三步是Dependency，就是我前面说的收集依赖的部分。</li>
+<li>第四步是Packing，这一步做的是将第三步收集到的资产，按照AssetBundle的内存布局格式排布好。</li>
+<li>第五步是Writing，这一步做的就是写入一个SerialziedFile(什么是SerializedFile前面讲了，忘记了可以回去上面看看)，以及后面跟着相关的资产。</li>
+<li>然后就会把AssetBundle打包到SBP指定的目录下面了，并且相关的BuildCache，会写入到Library/BuildCache文件夹中。下次打包会从Library/BuildCache中加载上次打包的中间步骤做哈希比较来判断是否有改动，从而加速打包。</li>
+<li>代码这里就不展开说了，这五步具体做了什么事情，我在前面已经将核心的部分说完了。</li>
+</ul>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a class="purple-link" href="https://juzhen.space/post/EDvOIgtjX">
+              <h3 class="post-title">
+                下一篇：比特世界漫游指南|发起
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">juzhen.space</div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '80729f653146f76d242b',
+        clientSecret: 'e6dc0eee88151d2707fe6b81c1d4f5d388c0670f',
+        repo: 'xitangking.github.io',
+        owner: 'xitangking',
+        admin: ['xitangking'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>
